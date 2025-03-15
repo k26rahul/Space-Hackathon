@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Container Item Adjuster</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="canvas-container"></div>
+    <div id="controls">
+      <h2>Container Dimensions</h2>
+      <div class="control-group">
+        <div class="slider-container">
+          <label>Container Size: 100 x 100 x 100</label>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <h2>Container Position</h2>
+        <div class="slider-container">
+          <label for="container-x">X Position</label>
+          <div class="slider-row">
+            <input type="range" id="container-x" min="-200" max="200" value="0" />
+            <span id="container-x-value" class="value-display">0</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label for="container-y">Y Position</label>
+          <div class="slider-row">
+            <input type="range" id="container-y" min="-200" max="200" value="0" />
+            <span id="container-y-value" class="value-display">0</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label for="container-z">Z Position</label>
+          <div class="slider-row">
+            <input type="range" id="container-z" min="-200" max="200" value="0" />
+            <span id="container-z-value" class="value-display">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <h2>Item 1 (Red)</h2>
+        <h3>Dimensions</h3>
+        <div class="slider-container">
+          <label for="item1-width">Width</label>
+          <div class="slider-row">
+            <input type="range" id="item1-width" min="10" max="100" value="30" />
+            <span id="item1-width-value" class="value-display">30</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label for="item1-height">Height</label>
+          <div class="slider-row">
+            <input type="range" id="item1-height" min="10" max="100" value="30" />
+            <span id="item1-height-value" class="value-display">30</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label for="item1-depth">Depth</label>
+          <div class="slider-row">
+            <input type="range" id="item1-depth" min="10" max="100" value="30" />
+            <span id="item1-depth-value" class="value-display">30</span>
+          </div>
+        </div>
+
+        <h3>Position</h3>
+        <div class="slider-container">
+          <label for="item1-x">X Position</label>
+          <div class="slider-row">
+            <input type="range" id="item1-x" min="0" max="100" value="25" />
+            <span id="item1-x-value" class="value-display">25</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label for="item1-y">Y Position</label>
+          <div class="slider-row">
+            <input type="range" id="item1-y" min="0" max="100" value="25" />
+            <span id="item1-y-value" class="value-display">25</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label for="item1-z">Z Position</label>
+          <div class="slider-row">
+            <input type="range" id="item1-z" min="0" max="100" value="25" />
+            <span id="item1-z-value" class="value-display">25</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <h2>Item 2 (Blue)</h2>
+        <h3>Dimensions</h3>
+        <div class="slider-container">
+          <label for="item2-width">Width</label>
+          <div class="slider-row">
+            <input type="range" id="item2-width" min="10" max="100" value="40" />
+            <span id="item2-width-value" class="value-display">40</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label for="item2-height">Height</label>
+          <div class="slider-row">
+            <input type="range" id="item2-height" min="10" max="100" value="40" />
+            <span id="item2-height-value" class="value-display">40</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label for="item2-depth">Depth</label>
+          <div class="slider-row">
+            <input type="range" id="item2-depth" min="10" max="100" value="40" />
+            <span id="item2-depth-value" class="value-display">40</span>
+          </div>
+        </div>
+
+        <h3>Position</h3>
+        <div class="slider-container">
+          <label for="item2-x">X Position</label>
+          <div class="slider-row">
+            <input type="range" id="item2-x" min="0" max="100" value="60" />
+            <span id="item2-x-value" class="value-display">60</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label for="item2-y">Y Position</label>
+          <div class="slider-row">
+            <input type="range" id="item2-y" min="0" max="100" value="60" />
+            <span id="item2-y-value" class="value-display">60</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label for="item2-z">Z Position</label>
+          <div class="slider-row">
+            <input type="range" id="item2-z" min="0" max="100" value="60" />
+            <span id="item2-z-value" class="value-display">60</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from 'three';
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+      import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+      // Scene setup
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xf0f0f0);
+
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const canvasContainer = document.getElementById('canvas-container');
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      canvasContainer.appendChild(renderer.domElement);
+
+      // CSS2D renderer for labels
+      const labelRenderer = new CSS2DRenderer();
+      labelRenderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+      labelRenderer.domElement.style.position = 'absolute';
+      labelRenderer.domElement.style.top = '0px';
+      labelRenderer.domElement.style.pointerEvents = 'none';
+      canvasContainer.appendChild(labelRenderer.domElement);
+
+      // Ambient light
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+      scene.add(ambientLight);
+
+      // Directional light
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+      directionalLight.position.set(1, 1, 1);
+      scene.add(directionalLight);
+
+      // Orbit controls
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+
+      // Container dimensions (100x100x100 units)
+      const containerSize = 100;
+
+      // Create container wireframe
+      const containerGeo = new THREE.BoxGeometry(containerSize, containerSize, containerSize);
+      const containerMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+      const container = new THREE.Mesh(containerGeo, containerMat);
+      container.position.set(containerSize / 2, containerSize / 2, containerSize / 2); // Center it
+      scene.add(container);
+
+      // Create highlighted front face
+      const frontFaceGeo = new THREE.PlaneGeometry(containerSize, containerSize);
+      const frontFaceMat = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+        transparent: true,
+        opacity: 0.2,
+        side: THREE.DoubleSide,
+      });
+      const frontFace = new THREE.Mesh(frontFaceGeo, frontFaceMat);
+      frontFace.position.set(containerSize / 2, containerSize / 2, 0); // Position at front (z=0)
+      scene.add(frontFace);
+
+      // Items
+      const items = [
+        {
+          name: 'Item 1',
+          size: [30, 30, 30], // width, height, depth
+          position: [25, 25, 25], // x, y, z
+          color: 0xff0000,
+          mesh: null,
+          label: null,
+        },
+        {
+          name: 'Item 2',
+          size: [40, 40, 40], // width, height, depth
+          position: [60, 60, 60], // x, y, z
+          color: 0x0000ff,
+          mesh: null,
+          label: null,
+        },
+      ];
+
+      // Function to convert hex color to CSS color string
+      function hexToRgb(hex) {
+        const r = (hex >> 16) & 255;
+        const g = (hex >> 8) & 255;
+        const b = hex & 255;
+        return `rgb(${r}, ${g}, ${b})`;
+      }
+
+      // Function to create an item with label
+      function createItem(item) {
+        const [width, height, depth] = item.size;
+        const geometry = new THREE.BoxGeometry(width, height, depth);
+        const material = new THREE.MeshStandardMaterial({
+          color: item.color,
+          transparent: true,
+          opacity: 0.8,
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+
+        // Position the item at its center
+        mesh.position.set(...item.position);
+
+        // Create label with matching border color
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'label';
+        labelDiv.textContent = item.name;
+        labelDiv.style.borderColor = hexToRgb(item.color);
+        const label = new CSS2DObject(labelDiv);
+        label.position.set(0, height / 2 + 5, 0);
+        mesh.add(label);
+
+        item.mesh = mesh;
+        item.label = label;
+
+        return mesh;
+      }
+
+      // Add items to scene
+      items.forEach(item => {
+        const itemMesh = createItem(item);
+        scene.add(itemMesh);
+      });
+
+      // Add axes helper (red: x/width, green: y/height, blue: z/depth)
+      const axesHelper = new THREE.AxesHelper(20);
+      scene.add(axesHelper);
+
+      // Camera position
+      camera.position.set(150, 150, 150);
+      camera.lookAt(containerSize / 2, containerSize / 2, containerSize / 2);
+
+      // Function to update item dimensions and position
+      function updateItem(itemIndex, property, value) {
+        const item = items[itemIndex];
+
+        if (property.startsWith('size')) {
+          const index = ['width', 'height', 'depth'].indexOf(property.split('-')[1]);
+          if (index !== -1) {
+            item.size[index] = value;
+
+            // Recreate the geometry with new dimensions
+            const [width, height, depth] = item.size;
+            item.mesh.geometry.dispose();
+            item.mesh.geometry = new THREE.BoxGeometry(width, height, depth);
+
+            // Update label position based on new height
+            item.label.position.set(0, height / 2 + 5, 0);
+
+            // Ensure item stays within container bounds
+            validateItemPosition(itemIndex);
+          }
+        } else if (property.startsWith('position')) {
+          const index = ['x', 'y', 'z'].indexOf(property.split('-')[1]);
+          if (index !== -1) {
+            item.position[index] = value;
+            item.mesh.position.set(...item.position);
+
+            // Ensure item stays within container bounds
+            validateItemPosition(itemIndex);
+          }
+        }
+      }
+
+      // Function to validate item position is within container bounds
+      function validateItemPosition(itemIndex) {
+        const item = items[itemIndex];
+        const [width, height, depth] = item.size;
+        const [x, y, z] = item.position;
+
+        // Calculate half dimensions for bounds checking
+        const halfWidth = width / 2;
+        const halfHeight = height / 2;
+        const halfDepth = depth / 2;
+
+        // Ensure item stays within container bounds
+        const newX = Math.max(halfWidth, Math.min(containerSize - halfWidth, x));
+        const newY = Math.max(halfHeight, Math.min(containerSize - halfHeight, y));
+        const newZ = Math.max(halfDepth, Math.min(containerSize - halfDepth, z));
+
+        // Update position if it changed
+        if (newX !== x || newY !== y || newZ !== z) {
+          item.position = [newX, newY, newZ];
+          item.mesh.position.set(...item.position);
+
+          // Update sliders if position was adjusted
+          if (newX !== x) {
+            document.getElementById(`item${itemIndex + 1}-x`).value = newX;
+            document.getElementById(`item${itemIndex + 1}-x-value`).textContent = newX;
+          }
+          if (newY !== y) {
+            document.getElementById(`item${itemIndex + 1}-y`).value = newY;
+            document.getElementById(`item${itemIndex + 1}-y-value`).textContent = newY;
+          }
+          if (newZ !== z) {
+            document.getElementById(`item${itemIndex + 1}-z`).value = newZ;
+            document.getElementById(`item${itemIndex + 1}-z-value`).textContent = newZ;
+          }
+        }
+      }
+
+      // Function to update container position
+      function updateContainerPosition(axis, value) {
+        const positionIndex = { x: 0, y: 1, z: 2 }[axis];
+        container.position.setComponent(positionIndex, value);
+      }
+
+      // Set up event listeners for container sliders
+      function setupContainerSliders() {
+        document.getElementById('container-x').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('container-x-value').textContent = value;
+          updateContainerPosition('x', value);
+        });
+
+        document.getElementById('container-y').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('container-y-value').textContent = value;
+          updateContainerPosition('y', value);
+        });
+
+        document.getElementById('container-z').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('container-z-value').textContent = value;
+          updateContainerPosition('z', value);
+        });
+      }
+
+      // Set up event listeners for sliders
+      function setupSliders() {
+        // Item 1 sliders
+        document.getElementById('item1-width').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('item1-width-value').textContent = value;
+          updateItem(0, 'size-width', value);
+        });
+
+        document.getElementById('item1-height').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('item1-height-value').textContent = value;
+          updateItem(0, 'size-height', value);
+        });
+
+        document.getElementById('item1-depth').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('item1-depth-value').textContent = value;
+          updateItem(0, 'size-depth', value);
+        });
+
+        document.getElementById('item1-x').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('item1-x-value').textContent = value;
+          updateItem(0, 'position-x', value);
+        });
+
+        document.getElementById('item1-y').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('item1-y-value').textContent = value;
+          updateItem(0, 'position-y', value);
+        });
+
+        document.getElementById('item1-z').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('item1-z-value').textContent = value;
+          updateItem(0, 'position-z', value);
+        });
+
+        // Item 2 sliders
+        document.getElementById('item2-width').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('item2-width-value').textContent = value;
+          updateItem(1, 'size-width', value);
+        });
+
+        document.getElementById('item2-height').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('item2-height-value').textContent = value;
+          updateItem(1, 'size-height', value);
+        });
+
+        document.getElementById('item2-depth').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('item2-depth-value').textContent = value;
+          updateItem(1, 'size-depth', value);
+        });
+
+        document.getElementById('item2-x').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('item2-x-value').textContent = value;
+          updateItem(1, 'position-x', value);
+        });
+
+        document.getElementById('item2-y').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('item2-y-value').textContent = value;
+          updateItem(1, 'position-y', value);
+        });
+
+        document.getElementById('item2-z').addEventListener('input', e => {
+          const value = parseInt(e.target.value);
+          document.getElementById('item2-z-value').textContent = value;
+          updateItem(1, 'position-z', value);
+        });
+      }
+
+      // Initialize sliders
+      setupSliders();
+      setupContainerSliders();
+
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+        labelRenderer.render(scene, camera);
+      }
+      animate();
+
+      // Resize handler
+      window.addEventListener('resize', () => {
+        const width = canvasContainer.clientWidth;
+        const height = canvasContainer.clientHeight;
+
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(width, height);
+        labelRenderer.setSize(width, height);
+      });
+    </script>
+  </body>
+</html>
