@@ -57,14 +57,14 @@ const container = new THREE.Mesh(containerGeo, containerMat);
 scene.add(container);
 
 const containerPosition = { x: 0, y: 0, z: 0 };
-function setContainerPosition({ x, y, z } = containerPosition) {
+function updateContainerPosition({ x, y, z } = containerPosition) {
   const containerOffset = containerSize / 2;
   x += containerOffset;
   y += containerOffset;
   z += -containerOffset;
   container.position.set(x, y, z);
 }
-setContainerPosition();
+updateContainerPosition();
 
 const frontFaceGeo = new THREE.PlaneGeometry(containerSize, containerSize);
 const frontFaceMat = new THREE.MeshBasicMaterial({
@@ -81,28 +81,43 @@ const items = [
   {
     name: 'Item 1',
     size: [30, 30, 30],
-    position: [0, 0, 0],
+    size: { width: 30, height: 30, depth: 30 },
+    position: { x: 0, y: 0, z: 0 },
     color: 0xff0000,
     mesh: null,
     label: null,
   },
   {
     name: 'Item 2',
-    size: [40, 40, 40],
-    position: [0, 0, -30],
+    size: { width: 40, height: 40, depth: 40 },
+    position: { x: 0, y: 0, z: -30 },
     color: 0x0000ff,
     mesh: null,
     label: null,
   },
 ];
 
-function createItem(item) {
+function updateItemPosition(item) {
   const containerOffset = containerSize / 2;
-  const [width, height, depth] = item.size;
-  let [posX, posY, posZ] = item.position;
-  posX += width / 2 - containerOffset;
-  posY += height / 2 - containerOffset;
-  posZ += -depth / 2 + containerOffset;
+  const { width, height, depth } = item.size;
+  const { x, y, z } = item.position;
+
+  const posX = x + width / 2 - containerOffset;
+  const posY = y + height / 2 - containerOffset;
+  const posZ = z - depth / 2 + containerOffset;
+
+  item.mesh.position.set(posX, posY, posZ);
+}
+
+function updateItemSize(item) {
+  item.mesh.geometry.dispose();
+  item.mesh.geometry = new THREE.BoxGeometry(item.size.width, item.size.height, item.size.depth);
+  item.label.position.set(0, item.size.height / 2 + 5, 0);
+  updateItemPosition(item);
+}
+
+function createItem(item) {
+  const { width, height, depth } = item.size;
 
   const geometry = new THREE.BoxGeometry(width, height, depth);
   const material = new THREE.MeshStandardMaterial({
@@ -111,7 +126,6 @@ function createItem(item) {
     opacity: 0.8,
   });
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(posX, posY, posZ);
 
   const labelDiv = document.createElement('div');
   labelDiv.className = 'label';
@@ -123,6 +137,7 @@ function createItem(item) {
 
   item.mesh = mesh;
   item.label = label;
+  updateItemPosition(item);
   return mesh;
 }
 
@@ -137,7 +152,9 @@ scene.add(axesHelper);
 setupControls({
   items,
   containerPosition,
-  setContainerPosition,
+  updateContainerPosition,
+  updateItemPosition,
+  updateItemSize,
 });
 
 function animate() {
