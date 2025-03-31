@@ -1,31 +1,8 @@
 import * as THREE from 'three';
-import { GUI } from 'dat.gui';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { setupControls } from './controls.js';
-
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xf0f0f0);
-
-const aspectRatio = window.innerWidth / window.innerHeight;
-const viewSize = 200;
-
-// Create both camera types
-const orthographicCamera = new THREE.OrthographicCamera(
-  (-viewSize * aspectRatio) / 2,
-  (viewSize * aspectRatio) / 2,
-  viewSize / 2,
-  -viewSize / 2,
-  -1000,
-  1000
-);
-
-const perspectiveCamera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
-
-let activeCamera = orthographicCamera;
-const setActiveCamera = camera => {
-  activeCamera = camera;
-};
+import { hexToRgb } from './utils.js';
 
 const canvasContainer = document.getElementById('canvas-container');
 
@@ -43,27 +20,51 @@ labelRenderer.domElement.style.top = '0px';
 labelRenderer.domElement.style.pointerEvents = 'none';
 canvasContainer.appendChild(labelRenderer.domElement);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-scene.add(ambientLight);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf0f0f0);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-directionalLight.position.set(1, 1, 1);
-scene.add(directionalLight);
+const aspectRatio = window.innerWidth / window.innerHeight;
+const viewSize = 200;
+const orthographicCamera = new THREE.OrthographicCamera(
+  (-viewSize * aspectRatio) / 2,
+  (viewSize * aspectRatio) / 2,
+  viewSize / 2,
+  -viewSize / 2,
+  -1000,
+  1000
+);
 
-const controls = new OrbitControls(activeCamera, renderer.domElement);
+const controls = new OrbitControls(orthographicCamera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 
-const containerSize = 100;
+{
+  const [x, y] = [50, 50];
+  orthographicCamera.position.set(x, y, 150);
+  controls.target.set(x, y, 0);
+}
 
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+scene.add(ambientLight);
+
+const containerSize = 100;
 const containerGeo = new THREE.BoxGeometry(containerSize, containerSize, containerSize);
 const containerMat = new THREE.MeshBasicMaterial({
   color: 0x00ff00,
   wireframe: true,
 });
 const container = new THREE.Mesh(containerGeo, containerMat);
-container.position.set(containerSize / 2, containerSize / 2, -containerSize / 2);
 scene.add(container);
+
+const containerPosition = { x: 0, y: 0, z: 0 };
+function setContainerPosition({ x, y, z } = containerPosition) {
+  const containerOffset = containerSize / 2;
+  x += containerOffset;
+  y += containerOffset;
+  z += -containerOffset;
+  container.position.set(x, y, z);
+}
+setContainerPosition();
 
 const frontFaceGeo = new THREE.PlaneGeometry(containerSize, containerSize);
 const frontFaceMat = new THREE.MeshBasicMaterial({
@@ -80,7 +81,7 @@ const items = [
   {
     name: 'Item 1',
     size: [30, 30, 30],
-    position: [-50 + 15, -50 + 15, +50 - 15],
+    position: [0, 0, 0],
     color: 0xff0000,
     mesh: null,
     label: null,
@@ -88,22 +89,21 @@ const items = [
   {
     name: 'Item 2',
     size: [40, 40, 40],
-    position: [-50 + 20, -50 + 20, +50 - 50],
+    position: [0, 0, -30],
     color: 0x0000ff,
     mesh: null,
     label: null,
   },
 ];
 
-function hexToRgb(hex) {
-  const r = (hex >> 16) & 255;
-  const g = (hex >> 8) & 255;
-  const b = hex & 255;
-  return `rgb(${r}, ${g}, ${b})`;
-}
-
 function createItem(item) {
+  const containerOffset = containerSize / 2;
   const [width, height, depth] = item.size;
+  let [posX, posY, posZ] = item.position;
+  posX += width / 2 - containerOffset;
+  posY += height / 2 - containerOffset;
+  posZ += -depth / 2 + containerOffset;
+
   const geometry = new THREE.BoxGeometry(width, height, depth);
   const material = new THREE.MeshStandardMaterial({
     color: item.color,
@@ -111,7 +111,7 @@ function createItem(item) {
     opacity: 0.8,
   });
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(...item.position);
+  mesh.position.set(posX, posY, posZ);
 
   const labelDiv = document.createElement('div');
   labelDiv.className = 'label';
@@ -123,7 +123,6 @@ function createItem(item) {
 
   item.mesh = mesh;
   item.label = label;
-
   return mesh;
 }
 
@@ -135,50 +134,16 @@ items.forEach(item => {
 const axesHelper = new THREE.AxesHelper(150);
 scene.add(axesHelper);
 
-perspectiveCamera.position.set(150, 150, 150);
-perspectiveCamera.lookAt(containerSize / 2, containerSize / 2, containerSize / 2);
-
-orthographicCamera.zoom = 1;
-orthographicCamera.position.set(50, 50, 150);
-controls.target.set(50, 50, 0);
-
-const gui = new GUI();
-
 setupControls({
-  gui,
-  container,
   items,
-  orthographicCamera,
-  perspectiveCamera,
-  containerSize,
-  controls,
-  setActiveCamera,
+  containerPosition,
+  setContainerPosition,
 });
 
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
-  renderer.render(scene, activeCamera);
-  labelRenderer.render(scene, activeCamera);
+  renderer.render(scene, orthographicCamera);
+  labelRenderer.render(scene, orthographicCamera);
 }
 animate();
-
-window.addEventListener('resize', () => {
-  const width = canvasContainer.clientWidth;
-  const height = canvasContainer.clientHeight;
-  const aspect = width / height;
-
-  // Update orthographic camera
-  orthographicCamera.left = (-viewSize * aspect) / 2;
-  orthographicCamera.right = (viewSize * aspect) / 2;
-  orthographicCamera.top = viewSize / 2;
-  orthographicCamera.bottom = -viewSize / 2;
-  orthographicCamera.updateProjectionMatrix();
-
-  // Update perspective camera
-  perspectiveCamera.aspect = aspect;
-  perspectiveCamera.updateProjectionMatrix();
-
-  renderer.setSize(width, height);
-  labelRenderer.setSize(width, height);
-});

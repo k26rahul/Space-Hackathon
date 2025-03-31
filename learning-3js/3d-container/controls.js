@@ -1,61 +1,19 @@
 import * as THREE from 'three';
+import { GUI } from 'dat.gui';
 
-export function updateContainerPosition(container, axis, value) {
-  const positionIndex = {
-    x: 0,
-    y: 1,
-    z: 2,
-  }[axis];
-  container.position.setComponent(positionIndex, value);
-}
+const gui = new GUI();
 
-export function setupControls({
-  gui,
-  container,
-  items,
-  orthographicCamera,
-  perspectiveCamera,
-  containerSize,
-  controls,
-  setActiveCamera,
-}) {
-  const cameraFolder = gui.addFolder('Camera Settings');
-  const cameraSettings = {
-    type: 'orthographic',
-    fov: 75,
-    zoom: 1,
-  };
-
-  cameraFolder.add(cameraSettings, 'type', ['orthographic', 'perspective']).onChange(value => {
-    const camera = value === 'orthographic' ? orthographicCamera : perspectiveCamera;
-    setActiveCamera(camera);
-    controls.object = camera;
-    camera.position.set(150, 150, 150);
-    camera.lookAt(containerSize / 2, containerSize / 2, containerSize / 2);
-  });
-
-  cameraFolder.add(cameraSettings, 'fov', 30, 120).onChange(value => {
-    perspectiveCamera.fov = value;
-    perspectiveCamera.updateProjectionMatrix();
-  });
-
-  cameraFolder.add(cameraSettings, 'zoom', 0.1, 5).onChange(value => {
-    orthographicCamera.zoom = value;
-    perspectiveCamera.zoom = value;
-    orthographicCamera.updateProjectionMatrix();
-    perspectiveCamera.updateProjectionMatrix();
-  });
-
+export function setupControls({ items, containerPosition, setContainerPosition }) {
   const containerFolder = gui.addFolder('Container Position');
   containerFolder
-    .add({ x: 0 }, 'x', -200, 200)
-    .onChange(value => updateContainerPosition(container, 'x', value));
+    .add(containerPosition, 'x', -100, 100)
+    .onChange(value => setContainerPosition(containerPosition));
   containerFolder
-    .add({ y: 0 }, 'y', -200, 200)
-    .onChange(value => updateContainerPosition(container, 'y', value));
+    .add(containerPosition, 'y', -100, 100)
+    .onChange(value => setContainerPosition(containerPosition));
   containerFolder
-    .add({ z: 0 }, 'z', -200, 200)
-    .onChange(value => updateContainerPosition(container, 'z', value));
+    .add(containerPosition, 'z', -100, 100)
+    .onChange(value => setContainerPosition(containerPosition));
 
   items.forEach((item, index) => {
     const itemFolder = gui.addFolder(
@@ -89,33 +47,12 @@ function updateItem(items, itemIndex, property, value) {
       item.mesh.geometry.dispose();
       item.mesh.geometry = new THREE.BoxGeometry(width, height, depth);
       item.label.position.set(0, height / 2 + 5, 0);
-      validateItemPosition(items, itemIndex);
     }
   } else if (property.startsWith('position')) {
     const index = ['x', 'y', 'z'].indexOf(property.split('-')[1]);
     if (index !== -1) {
       item.position[index] = value;
       item.mesh.position.set(...item.position);
-      validateItemPosition(items, itemIndex);
     }
-  }
-}
-
-function validateItemPosition(items, itemIndex) {
-  const item = items[itemIndex];
-  const [width, height, depth] = item.size;
-  const [x, y, z] = item.position;
-
-  const halfWidth = width / 2;
-  const halfHeight = height / 2;
-  const halfDepth = depth / 2;
-
-  const newX = Math.max(halfWidth, Math.min(100 - halfWidth, x));
-  const newY = Math.max(halfHeight, Math.min(100 - halfHeight, y));
-  const newZ = Math.max(halfDepth, Math.min(100 - halfDepth, z));
-
-  if (newX !== x || newY !== y || newZ !== z) {
-    item.position = [newX, newY, newZ];
-    item.mesh.position.set(...item.position);
   }
 }
