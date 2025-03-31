@@ -16,7 +16,7 @@ const orthographicCamera = new THREE.OrthographicCamera(
   (viewSize * aspectRatio) / 2,
   viewSize / 2,
   -viewSize / 2,
-  1,
+  -1000,
   1000
 );
 
@@ -62,7 +62,7 @@ const containerMat = new THREE.MeshBasicMaterial({
   wireframe: true,
 });
 const container = new THREE.Mesh(containerGeo, containerMat);
-container.position.set(containerSize / 2, containerSize / 2, containerSize / 2);
+container.position.set(containerSize / 2, containerSize / 2, -containerSize / 2);
 scene.add(container);
 
 const frontFaceGeo = new THREE.PlaneGeometry(containerSize, containerSize);
@@ -73,14 +73,14 @@ const frontFaceMat = new THREE.MeshBasicMaterial({
   side: THREE.DoubleSide,
 });
 const frontFace = new THREE.Mesh(frontFaceGeo, frontFaceMat);
-frontFace.position.set(0, 0, -containerSize / 2);
+frontFace.position.set(0, 0, containerSize / 2);
 container.add(frontFace);
 
 const items = [
   {
     name: 'Item 1',
     size: [30, 30, 30],
-    position: [25, 25, 25],
+    position: [-50 + 15, -50 + 15, +50 - 15],
     color: 0xff0000,
     mesh: null,
     label: null,
@@ -88,7 +88,7 @@ const items = [
   {
     name: 'Item 2',
     size: [40, 40, 40],
-    position: [60, 60, 60],
+    position: [-50 + 20, -50 + 20, +50 - 50],
     color: 0x0000ff,
     mesh: null,
     label: null,
@@ -129,18 +129,18 @@ function createItem(item) {
 
 items.forEach(item => {
   const itemMesh = createItem(item);
-  scene.add(itemMesh);
+  container.add(itemMesh);
 });
 
 const axesHelper = new THREE.AxesHelper(150);
 scene.add(axesHelper);
 
-orthographicCamera.position.set(150, 150, 150);
 perspectiveCamera.position.set(150, 150, 150);
-orthographicCamera.zoom = 1;
-orthographicCamera.updateProjectionMatrix();
-orthographicCamera.lookAt(containerSize / 2, containerSize / 2, containerSize / 2);
 perspectiveCamera.lookAt(containerSize / 2, containerSize / 2, containerSize / 2);
+
+orthographicCamera.zoom = 1;
+orthographicCamera.position.set(50, 50, 150);
+controls.target.set(50, 50, 0);
 
 const gui = new GUI();
 
