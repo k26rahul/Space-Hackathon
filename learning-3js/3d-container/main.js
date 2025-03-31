@@ -63,10 +63,6 @@ scene.add(axesHelper);
 setupControls({
   container,
   items,
-  containerPosition: container.position,
-  updateContainerPosition: () => container.updatePosition(),
-  updateItemPosition: item => item.updatePosition(),
-  updateItemSize: item => item.updateSize(),
 });
 
 function animate() {

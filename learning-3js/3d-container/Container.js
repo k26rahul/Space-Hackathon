@@ -25,7 +25,7 @@ export class Container {
       side: THREE.DoubleSide,
     });
     const frontFace = new THREE.Mesh(faceGeometry, faceMaterial);
-    frontFace.position.set(0, 0, this.size / 2);
+    frontFace.position.set(0, 0, this.size / 2 + 1); // +1 to avoid z-fighting
     containerMesh.add(frontFace);
 
     return containerMesh;
