@@ -2,23 +2,14 @@ import { GUI } from 'dat.gui';
 
 const gui = new GUI();
 
-export function setupControls({
-  items,
-  containerPosition,
-  updateContainerPosition,
-  updateItemPosition,
-  updateItemSize,
-}) {
+export function setupControls({ container, items }) {
   const containerFolder = gui.addFolder('Container Position');
-  containerFolder
-    .add(containerPosition, 'x', -100, 100)
-    .onChange(value => updateContainerPosition(containerPosition));
-  containerFolder
-    .add(containerPosition, 'y', -100, 100)
-    .onChange(value => updateContainerPosition(containerPosition));
-  containerFolder
-    .add(containerPosition, 'z', -100, 100)
-    .onChange(value => updateContainerPosition(containerPosition));
+
+  Object.keys(container.position).forEach(dim => {
+    containerFolder.add(container.position, dim, -100, 100).onChange(value => {
+      container.updatePosition();
+    });
+  });
 
   items.forEach(item => {
     const itemFolder = gui.addFolder(item.name);
@@ -26,13 +17,11 @@ export function setupControls({
     const dimFolder = itemFolder.addFolder('Dimensions');
 
     Object.keys(item.position).forEach(dim => {
-      posFolder.add(item.position, dim, -100, 100).onChange(value => updateItemPosition(item));
+      posFolder.add(item.position, dim, -100, 100).onChange(value => item.updatePosition());
     });
 
     Object.keys(item.size).forEach(dim => {
-      dimFolder.add(item.size, dim, -100, 100).onChange(value => {
-        updateItemSize(item);
-      });
+      dimFolder.add(item.size, dim, -100, 100).onChange(value => item.updateSize());
     });
   });
 }
