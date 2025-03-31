@@ -1,12 +1,24 @@
 import { GUI } from 'dat.gui';
+import * as THREE from 'three';
 
 const gui = new GUI();
 
 export function setupControls({ container, items }) {
-  const containerFolder = gui.addFolder('Container Position');
+  // Create a parent folder for Container
+  const containerFolder = gui.addFolder('Container');
 
+  // Dimensions folder
+  const containerDimFolder = containerFolder.addFolder('Dimensions');
+  Object.keys(container.dimensions).forEach(dim => {
+    containerDimFolder.add(container.dimensions, dim, -100, 300).onChange(value => {
+      container.updateDimensions();
+    });
+  });
+
+  // Position folder
+  const containerPosFolder = containerFolder.addFolder('Position');
   Object.keys(container.position).forEach(dim => {
-    containerFolder.add(container.position, dim, -100, 100).onChange(value => {
+    containerPosFolder.add(container.position, dim, -100, 100).onChange(value => {
       container.updatePosition();
     });
   });

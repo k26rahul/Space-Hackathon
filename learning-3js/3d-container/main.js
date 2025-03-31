@@ -43,7 +43,7 @@ controls.target.set(50, 50, 0);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
 scene.add(ambientLight);
 
-const container = new Container(100);
+const container = new Container({ width: 100, height: 100, depth: 100 });
 scene.add(container.mesh);
 
 const items = [
@@ -53,7 +53,7 @@ const items = [
 
 items.forEach(item => {
   container.addItem(item);
-  item.setContainerSize(container.size);
+  item.setContainerSize(container.dimensions);
   item.updatePosition();
 });
 

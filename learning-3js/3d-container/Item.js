@@ -41,13 +41,15 @@ export class Item {
   }
 
   updatePosition() {
-    const containerOffset = this.containerSize / 2;
     const { width, height, depth } = this.size;
     const { x, y, z } = this.position;
+    const offsetX = this.containerSize.width / 2;
+    const offsetY = this.containerSize.height / 2;
+    const offsetZ = this.containerSize.depth / 2;
 
-    const posX = x + width / 2 - containerOffset;
-    const posY = y + height / 2 - containerOffset;
-    const posZ = z - depth / 2 + containerOffset;
+    const posX = x + width / 2 - offsetX;
+    const posY = y + height / 2 - offsetY;
+    const posZ = z - depth / 2 + offsetZ;
 
     this.mesh.position.set(posX, posY, posZ);
   }
