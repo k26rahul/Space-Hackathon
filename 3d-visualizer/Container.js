@@ -66,7 +66,6 @@ export class Container {
 
     // Update positions of contained items
     this.items.forEach(item => {
-      item.setContainerSize(this.size);
       item.updatePosition();
     });
   }

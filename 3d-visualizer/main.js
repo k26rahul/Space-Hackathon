@@ -1,10 +1,13 @@
 import * as THREE from 'three';
+
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
+
 import { setupControls } from './controls.js';
 import { Container } from './Container.js';
 import { Item } from './Item.js';
+import { itemsData } from './items.js';
 
 const canvasContainer = document.getElementById('canvas-container');
 
@@ -52,33 +55,21 @@ scene.add(ambientLight);
 const container = new Container({ width: 100, height: 100, depth: 100 });
 scene.add(container.mesh);
 
-const items = [
-  new Item('Item 1', { width: 30, height: 30, depth: 30 }, { x: 0, y: 0, z: 0 }, 0xff0000),
-  new Item('Item 2', { width: 40, height: 40, depth: 40 }, { x: 0, y: 0, z: -30 }, 0x0000ff),
-  new Item('Item 3', { width: 50, height: 50, depth: 50 }, { x: 0, y: 0, z: -70 }, 0x00ff00),
-  new Item('Item 4', { width: 60, height: 60, depth: 60 }, { x: 0, y: 0, z: -120 }, 0xffff00),
-  new Item('Item 5', { width: 70, height: 70, depth: 70 }, { x: 0, y: 0, z: -180 }, 0xff00ff),
-];
+const axesHelper = new THREE.AxesHelper(150);
+scene.add(axesHelper);
 
+const items = itemsData.map(data => new Item(data.name, data.size, data.position));
 items.forEach(item => {
   container.addItem(item);
   item.setContainer(container);
-  item.updatePosition();
-});
 
-const transformControls = [];
-items.forEach(item => {
   const control = new TransformControls(orthographicCamera, renderer.domElement);
   control.attach(item.mesh);
   control.addEventListener('dragging-changed', event => {
     controls.enabled = !event.value;
   });
   scene.add(control);
-  transformControls.push(control);
 });
-
-const axesHelper = new THREE.AxesHelper(150);
-scene.add(axesHelper);
 
 const guiControls = setupControls({
   container,

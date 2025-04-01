@@ -1,13 +1,18 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-import { hexToRgb } from './utils.js';
+
+const colors = [
+  0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff, 0xff8800, 0x8800ff, 0x0088ff,
+  0x88ff00, 0xff4444, 0x44ff44, 0x4444ff, 0xffff44, 0xff44ff, 0x44ffff, 0xffaa00, 0xaa00ff,
+  0x00aaff, 0xaaff00,
+];
 
 export class Item {
-  constructor(name, size, position, color) {
+  constructor(name, size, position) {
     this.name = name;
     this.size = size;
     this.position = position;
-    this.color = color;
+    this.color = colors[Math.floor(Math.random() * colors.length)];
 
     this.mesh = this.createItemMesh();
     this.label = this.createLabel();
@@ -19,6 +24,7 @@ export class Item {
 
   setContainer(container) {
     this.container = container;
+    this.updatePosition();
   }
 
   createItemMesh() {

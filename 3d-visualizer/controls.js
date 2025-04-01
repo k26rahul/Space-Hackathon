@@ -35,14 +35,14 @@ export function setupControls({ container, items }) {
   function updateItemSizeRanges(item, sizeControllers) {
     sizeControllers.forEach(({ dim, ctrl }) => {
       const { min, max } = getItemSizeRange(dim);
-      ctrl.min(min).max(max);
+      ctrl.min(min).max(max).updateDisplay();
     });
   }
 
   function updateItemPosRanges(item, posControllers) {
     posControllers.forEach(({ axis, ctrl }) => {
       const { min, max } = getItemPosRange(item, axis);
-      ctrl.min(min).max(max);
+      ctrl.min(min).max(max).updateDisplay();
     });
   }
 
@@ -57,7 +57,7 @@ export function setupControls({ container, items }) {
       // update container position sliders when container size changes
       Object.keys(container.position).forEach(axis => {
         const { min, max } = getContainerPosRange(axis);
-        containerPosControllers[axis].min(min).max(max);
+        containerPosControllers[axis].min(min).max(max).updateDisplay();
       });
       // update items size and position sliders when container size changes
       itemsControllers.forEach(({ item, sizeControllers, posControllers }) => {
