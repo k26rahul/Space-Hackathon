@@ -15,11 +15,25 @@ body {
   color: white;
   background-color: rgba(0, 0, 0, 0.7);
   padding: 2px 6px;
+  border: 2px solid white;
   border-radius: 4px;
   font-size: 12px;
   white-space: nowrap;
   pointer-events: none;
   user-select: none;
-  border-width: 2px;
-  border-style: solid;
+}
+
+@keyframes flash {
+  0%,
+  100% {
+    border-color: red;
+  }
+  50% {
+    border-color: yellow;
+  }
+}
+
+.flashing {
+  border-width: 5px;
+  animation: flash 1s infinite;
 }

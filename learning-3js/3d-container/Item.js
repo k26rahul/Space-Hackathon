@@ -14,8 +14,7 @@ export class Item {
     this.mesh.add(this.label);
 
     this.container = null;
-    this.intersecting = false; // new property for collision detection
-    this.defaultBorderColor = hexToRgb(this.color); // store default
+    this.intersecting = false; // flag to indicate intersection with other items
   }
 
   setContainer(container) {
@@ -36,7 +35,6 @@ export class Item {
     const labelDiv = document.createElement('div');
     labelDiv.className = 'label';
     labelDiv.textContent = this.name;
-    labelDiv.style.borderColor = hexToRgb(this.color);
     const label = new CSS2DObject(labelDiv);
     label.position.set(0, this.size.height / 2 + 5, 0);
     return label;
@@ -65,11 +63,10 @@ export class Item {
   }
 
   updateVisual() {
-    // Visual indication: set label border color to red if intersecting
     if (this.intersecting) {
-      this.label.element.style.borderColor = 'red';
+      this.label.element.classList.add('flashing'); // apply flashing animation
     } else {
-      this.label.element.style.borderColor = this.defaultBorderColor;
+      this.label.element.classList.remove('flashing'); // remove flashing animation
     }
   }
 }
