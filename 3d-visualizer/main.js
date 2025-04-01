@@ -58,7 +58,8 @@ scene.add(container.mesh);
 const axesHelper = new THREE.AxesHelper(150);
 scene.add(axesHelper);
 
-const enableTransformControl = false; // Set to true to enable transform controls
+const enableTransformControl = true; // Set to true to enable transform controls
+const step = 1; // Set step size for movement snapping
 const items = itemsData.map(data => new Item(data.name, data.size, data.position));
 items.forEach(item => {
   container.addItem(item);
@@ -67,10 +68,17 @@ items.forEach(item => {
   if (enableTransformControl) {
     const control = new TransformControls(orthographicCamera, renderer.domElement);
     control.attach(item.mesh);
+
     control.addEventListener('dragging-changed', event => {
       controls.enabled = !event.value;
     });
+
     control.addEventListener('objectChange', () => {
+      if (control.mode === 'translate') {
+        item.mesh.position.x = Math.round(item.mesh.position.x / step) * step;
+        item.mesh.position.y = Math.round(item.mesh.position.y / step) * step;
+        item.mesh.position.z = Math.round(item.mesh.position.z / step) * step;
+      }
       item.updatePositionFromMesh();
     });
     scene.add(control);
