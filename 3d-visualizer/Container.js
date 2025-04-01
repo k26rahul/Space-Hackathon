@@ -1,12 +1,13 @@
 import * as THREE from 'three';
+import { axisToDimension } from './utils.js';
 
 export class Container {
   constructor(size, position = { x: 0, y: 0, z: 0 }) {
     this.size = size;
     this.position = position;
 
+    this.items = []; // Array to hold items in the container
     this.mesh = this.createContainerMesh();
-    this.items = [];
     this.updatePosition();
   }
 
@@ -71,8 +72,8 @@ export class Container {
   }
 
   addItem(item) {
-    this.items.push(item);
-    this.mesh.add(item.mesh);
+    this.items.push(item); // Add item to the container's items array
+    this.mesh.add(item.mesh); // Add item mesh to the container mesh
   }
 
   checkIntersections() {
@@ -125,5 +126,11 @@ export class Container {
         item.intersections.push('container');
       }
     });
+  }
+
+  getPositionRange(axis) {
+    const dimension = axisToDimension[axis];
+    const val = this.size[dimension];
+    return { min: -val, max: val };
   }
 }

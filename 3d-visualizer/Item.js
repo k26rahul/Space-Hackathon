@@ -75,4 +75,15 @@ export class Item {
       this.label.element.classList.remove('flashing'); // remove flashing animation
     }
   }
+
+  getPositionRange(axis) {
+    const containerSize = this.container.size;
+    if (axis === 'x') return { min: 0, max: containerSize.width - this.size.width };
+    if (axis === 'y') return { min: 0, max: containerSize.height - this.size.height };
+    if (axis === 'z') return { min: -(containerSize.depth - this.size.depth), max: 0 };
+  }
+
+  getSizeRange(dim) {
+    return { min: 1, max: this.container.size[dim] };
+  }
 }

@@ -4,3 +4,9 @@ export function hexToRgb(hex) {
   const b = hex & 255;
   return `rgb(${r}, ${g}, ${b})`;
 }
+
+export const axisToDimension = {
+  x: 'width',
+  y: 'height',
+  z: 'depth',
+};
