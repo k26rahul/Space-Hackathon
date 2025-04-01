@@ -53,7 +53,7 @@ const items = [
 
 items.forEach(item => {
   container.addItem(item);
-  item.setContainerSize(container.dimensions);
+  item.setContainerSize(container.size);
   item.updatePosition();
 });
 

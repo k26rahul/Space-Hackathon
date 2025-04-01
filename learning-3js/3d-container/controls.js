@@ -2,99 +2,109 @@ import { GUI } from 'dat.gui';
 
 const gui = new GUI();
 
-const posToDim = {
+const axisToDimension = {
   x: 'width',
   y: 'height',
   z: 'depth',
 };
 
 export function setupControls({ container, items }) {
-  // Store controller references
-  const containerPosControllers = {}; // { x: controller, y: controller, ... }
-  const itemsControllers = []; // each { item, dimControllers: [{dim, ctrl}], posControllers: [{dim, ctrl}] }
+  // { x: controller, y: controller, ... }
+  const containerPosControllers = {};
 
-  function getContainerPosRange(dim) {
-    const val = container.dimensions[posToDim[dim]] || 100;
+  // each { item, sizeControllers: [{dim, ctrl}], posControllers: [{axis, ctrl}] }
+  // dim: 'width', 'height', 'depth'
+  // axis: 'x', 'y', 'z'
+  const itemsControllers = [];
+
+  function getContainerPosRange(axis) {
+    const val = container.size[axisToDimension[axis]];
     return { min: -val, max: val };
   }
 
-  function getItemPosRange(item, dim) {
-    if (dim === 'x') return { min: 0, max: container.dimensions.width - item.size.width };
-    if (dim === 'y') return { min: 0, max: container.dimensions.height - item.size.height };
-    if (dim === 'z') return { min: -(container.dimensions.depth - item.size.depth), max: 0 };
+  function getItemPosRange(item, axis) {
+    if (axis === 'x') return { min: 0, max: container.size.width - item.size.width };
+    if (axis === 'y') return { min: 0, max: container.size.height - item.size.height };
+    if (axis === 'z') return { min: -(container.size.depth - item.size.depth), max: 0 };
   }
 
-  function updateItemSizeRanges(item, dimControllers) {
-    dimControllers.forEach(({ dim, ctrl }) => {
-      ctrl.min(1).max(container.dimensions[dim] || 100);
-    });
+  function getItemSizeRange(dim) {
+    return { min: 1, max: container.size[dim] };
   }
 
-  function updateItemPosRanges(item, posControllers) {
-    posControllers.forEach(({ dim, ctrl }) => {
-      const { min, max } = getItemPosRange(item, dim);
+  function updateItemSizeRanges(item, sizeControllers) {
+    sizeControllers.forEach(({ dim, ctrl }) => {
+      const { min, max } = getItemSizeRange(dim);
       ctrl.min(min).max(max);
     });
   }
 
-  // Container Folder
+  function updateItemPosRanges(item, posControllers) {
+    posControllers.forEach(({ axis, ctrl }) => {
+      const { min, max } = getItemPosRange(item, axis);
+      ctrl.min(min).max(max);
+    });
+  }
+
+  // Container
   const containerFolder = gui.addFolder('Container');
 
-  // Dimensions
-  const containerDimFolder = containerFolder.addFolder('Dimensions');
-  Object.keys(container.dimensions).forEach(dim => {
-    containerDimFolder.add(container.dimensions, dim, 0, 300).onChange(value => {
-      container.updateDimensions();
+  // Container Size
+  const containerSizeFolder = containerFolder.addFolder('Size');
+  Object.keys(container.size).forEach(dim => {
+    containerSizeFolder.add(container.size, dim, 0, 300).onChange(value => {
+      container.updateSize();
       // update container position sliders when container size changes
-      Object.keys(container.position).forEach(dim => {
-        const { min, max } = getContainerPosRange(dim);
-        containerPosControllers[dim].min(min).max(max);
+      Object.keys(container.position).forEach(axis => {
+        const { min, max } = getContainerPosRange(axis);
+        containerPosControllers[axis].min(min).max(max);
       });
-      // refresh all item sliders when container size changes
-      itemsControllers.forEach(({ item, dimControllers, posControllers }) => {
-        updateItemSizeRanges(item, dimControllers);
+      // update items size and position sliders when container size changes
+      itemsControllers.forEach(({ item, sizeControllers, posControllers }) => {
+        updateItemSizeRanges(item, sizeControllers);
         updateItemPosRanges(item, posControllers);
       });
     });
   });
 
-  // Position (DRY: use getContainerPosRange)
+  // Container Position
   const containerPosFolder = containerFolder.addFolder('Position');
-  Object.keys(container.position).forEach(dim => {
-    const { min, max } = getContainerPosRange(dim);
-    const ctrl = containerPosFolder.add(container.position, dim, min, max).onChange(value => {
+  Object.keys(container.position).forEach(axis => {
+    const { min, max } = getContainerPosRange(axis);
+    const ctrl = containerPosFolder.add(container.position, axis, min, max).onChange(value => {
       container.updatePosition();
     });
-    containerPosControllers[dim] = ctrl;
+    containerPosControllers[axis] = ctrl; // store controller for later use
   });
 
   // Items
   items.forEach(item => {
     const itemFolder = gui.addFolder(item.name);
-    const dimFolder = itemFolder.addFolder('Dimensions');
+    const sizeFolder = itemFolder.addFolder('Size');
     const posFolder = itemFolder.addFolder('Position');
-    const dimControllers = [];
+    const sizeControllers = [];
     const posControllers = [];
 
-    // Dimensions
+    // Items Size
     Object.keys(item.size).forEach(dim => {
-      const max = container.dimensions[dim] || 100;
-      const ctrl = dimFolder.add(item.size, dim, 1, max).onChange(value => {
+      const { min, max } = getItemSizeRange(dim);
+      const ctrl = sizeFolder.add(item.size, dim, min, max).onChange(value => {
         item.updateSize();
+        // update item position sliders when item size changes
         updateItemPosRanges(item, posControllers);
       });
-      dimControllers.push({ dim, ctrl });
+      sizeControllers.push({ dim, ctrl });
     });
 
-    // Position (DRY: use getItemPosRange)
-    Object.keys(item.position).forEach(dim => {
-      const { min, max } = getItemPosRange(item, dim);
-      const ctrl = posFolder.add(item.position, dim, min, max).onChange(value => {
+    // Items Position
+    Object.keys(item.position).forEach(axis => {
+      const { min, max } = getItemPosRange(item, axis);
+      const ctrl = posFolder.add(item.position, axis, min, max).onChange(value => {
         item.updatePosition();
       });
-      posControllers.push({ dim, ctrl });
+      posControllers.push({ axis, ctrl });
     });
 
-    itemsControllers.push({ item, dimControllers, posControllers });
+    itemsControllers.push({ item, sizeControllers, posControllers }); // store item controllers
   });
 }
