@@ -9,12 +9,7 @@ const containerPositionStep = 1;
 const itemSizeStep = 1;
 const itemPositionStep = 1;
 
-// Flags to enable/disable controls
-const enableContainerControls = false;
-const enableItemSizeControls = true;
-const enableItemPositionControls = true;
-
-export function setupControls({ container, items }) {
+export function setupControls({ container, items, createItem }) {
   // { x: controller, y: controller, ... }
   const containerPosControllers = {};
 
@@ -38,86 +33,108 @@ export function setupControls({ container, items }) {
   }
 
   // Container
-  if (enableContainerControls) {
-    const containerFolder = gui.addFolder('Container');
+  const containerFolder = gui.addFolder('Container');
 
-    // Container Size
-    const containerSizeFolder = containerFolder.addFolder('Size');
-    Object.keys(container.size).forEach(dim => {
-      containerSizeFolder.add(container.size, dim, 0, 300, containerSizeStep).onChange(value => {
-        container.updateSize();
+  // Container Size
+  const containerSizeFolder = containerFolder.addFolder('Size');
+  Object.keys(container.size).forEach(dim => {
+    containerSizeFolder.add(container.size, dim, 0, 300, containerSizeStep).onChange(value => {
+      container.updateSize();
 
-        // update container position sliders when container size changes
-        Object.keys(container.position).forEach(axis => {
-          const { min, max } = container.getPositionRange(axis);
-          containerPosControllers[axis].min(min).max(max).updateDisplay();
-        });
+      // update container position sliders when container size changes
+      Object.keys(container.position).forEach(axis => {
+        const { min, max } = container.getPositionRange(axis);
+        containerPosControllers[axis].min(min).max(max).updateDisplay();
+      });
 
-        // update items size and position sliders when container size changes
-        itemsControllers.forEach(({ item, sizeControllers, posControllers }) => {
-          updateItemSizeRanges(item, sizeControllers);
-          updateItemPosRanges(item, posControllers);
-        });
+      // update items size and position sliders when container size changes
+      itemsControllers.forEach(({ item, sizeControllers, posControllers }) => {
+        updateItemSizeRanges(item, sizeControllers);
+        updateItemPosRanges(item, posControllers);
       });
     });
+  });
 
-    // Container Position
-    const containerPosFolder = containerFolder.addFolder('Position');
-    Object.keys(container.position).forEach(axis => {
-      const { min, max } = container.getPositionRange(axis);
-      const ctrl = containerPosFolder
-        .add(container.position, axis, min, max, containerPositionStep)
-        .onChange(value => {
-          container.updatePosition();
-        });
-      containerPosControllers[axis] = ctrl; // store controller for later use
-    });
-  }
+  // Container Position
+  const containerPosFolder = containerFolder.addFolder('Position');
+  Object.keys(container.position).forEach(axis => {
+    const { min, max } = container.getPositionRange(axis);
+    const ctrl = containerPosFolder
+      .add(container.position, axis, min, max, containerPositionStep)
+      .onChange(value => {
+        container.updatePosition();
+      });
+    containerPosControllers[axis] = ctrl; // store controller for later use
+  });
 
   // Items
-  if (enableItemSizeControls || enableItemPositionControls) {
-    const itemsControlFolder = gui.addFolder('Items');
+  const itemsControlFolder = gui.addFolder('Items');
 
-    items.forEach(item => {
-      const itemFolder = itemsControlFolder.addFolder(item.name);
-      const sizeControllers = [];
-      const posControllers = [];
+  function setupItemControls(item) {
+    const itemFolder = itemsControlFolder.addFolder(item.name);
+    const sizeControllers = [];
+    const posControllers = [];
 
-      // Items Size
-      if (enableItemSizeControls) {
-        const sizeFolder = itemFolder.addFolder('Size');
-        sizeFolder.open();
+    // Items Size
+    const sizeFolder = itemFolder.addFolder('Size');
+    sizeFolder.open();
 
-        Object.keys(item.size).forEach(dim => {
-          const { min, max } = item.getSizeRange(dim);
-          const ctrl = sizeFolder.add(item.size, dim, min, max, itemSizeStep).onChange(value => {
-            item.updateSize();
-            // update item position sliders when item size changes
-            updateItemPosRanges(item, posControllers);
-          });
-          sizeControllers.push({ dim, ctrl });
-        });
-      }
-
-      // Items Position
-      if (enableItemPositionControls) {
-        const posFolder = itemFolder.addFolder('Position');
-        posFolder.open();
-
-        Object.keys(item.position).forEach(axis => {
-          const { min, max } = item.getPositionRange(axis);
-          const ctrl = posFolder
-            .add(item.position, axis, min, max, itemPositionStep)
-            .onChange(value => {
-              item.updatePosition();
-            });
-          posControllers.push({ axis, ctrl });
-        });
-      }
-
-      itemsControllers.push({ item, sizeControllers, posControllers }); // store item controllers
+    Object.keys(item.size).forEach(dim => {
+      const { min, max } = item.getSizeRange(dim);
+      const ctrl = sizeFolder.add(item.size, dim, min, max, itemSizeStep).onChange(value => {
+        item.updateSize();
+        // update item position sliders when item size changes
+        updateItemPosRanges(item, posControllers);
+      });
+      sizeControllers.push({ dim, ctrl });
     });
+
+    // Items Position
+    const posFolder = itemFolder.addFolder('Position');
+    posFolder.open();
+
+    Object.keys(item.position).forEach(axis => {
+      const { min, max } = item.getPositionRange(axis);
+      const ctrl = posFolder
+        .add(item.position, axis, min, max, itemPositionStep)
+        .onChange(value => {
+          item.updatePosition();
+        });
+      posControllers.push({ axis, ctrl });
+    });
+
+    itemsControllers.push({ item, sizeControllers, posControllers }); // store item controllers
   }
+
+  // Setup controls for existing items
+  items.forEach(item => setupItemControls(item));
+
+  // Add New Item button
+  gui
+    .add(
+      {
+        addItem: () => {
+          const newItemData = {
+            size: {
+              // random size between 20 and 50
+              width: Math.floor(Math.random() * 7) * 5 + 20,
+              height: Math.floor(Math.random() * 7) * 5 + 20,
+              depth: Math.floor(Math.random() * 7) * 5 + 20,
+            },
+            position: {
+              // random position between 0 and 50
+              x: Math.floor(Math.random() * 51),
+              y: Math.floor(Math.random() * 51),
+              z: -Math.floor(Math.random() * 51), // negative z for depth
+            },
+          };
+          const item = createItem(newItemData);
+          setupItemControls(item);
+        },
+      },
+      'addItem'
+    )
+    .name('Add New Item');
 
   // Intersections
   const intersectionsFolder = gui.addFolder('Intersections');
@@ -126,6 +143,30 @@ export function setupControls({ container, items }) {
   // Item Properties
   const itemPropertiesFolder = gui.addFolder('Item Properties');
   const propertiesDisplay = new GuiDisplay(itemPropertiesFolder);
+
+  // Add Export button to Item Properties folder
+  gui
+    .add(
+      {
+        exportItems: () => {
+          const itemsData = items.map(item => ({
+            size: { ...item.size },
+            position: { ...item.position },
+          }));
+          const jsonString = JSON.stringify({ items: itemsData });
+          navigator.clipboard
+            .writeText(jsonString)
+            .then(() => {
+              console.log('Items data copied to clipboard!');
+            })
+            .catch(err => {
+              console.error('Failed to copy to clipboard:', err);
+            });
+        },
+      },
+      'exportItems'
+    )
+    .name('Export Items Data');
 
   // Update function for intersections display
   function updateIntersections() {

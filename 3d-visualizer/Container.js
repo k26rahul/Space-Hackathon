@@ -18,8 +18,14 @@ export class Container {
     const containerMaterial = new THREE.MeshBasicMaterial({ visible: false });
     const containerMesh = new THREE.Mesh(geometry, containerMaterial);
 
-    // Create wireframe edges without diagonal lines
-    const edges = new THREE.EdgesGeometry(geometry);
+    // Create wireframe edges without diagonal lines, slightly larger than the container
+    const scale = 1.001; // Make wireframe 0.1% larger
+    const wireframeGeometry = new THREE.BoxGeometry(
+      this.size.width * scale,
+      this.size.height * scale,
+      this.size.depth * scale
+    );
+    const edges = new THREE.EdgesGeometry(wireframeGeometry);
     const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 });
     const wireframe = new THREE.LineSegments(edges, edgeMaterial);
     containerMesh.add(wireframe);
@@ -56,7 +62,13 @@ export class Container {
     const wireframe = this.mesh.children.find(child => child.type === 'LineSegments');
     if (wireframe) {
       wireframe.geometry.dispose();
-      wireframe.geometry = new THREE.EdgesGeometry(this.mesh.geometry);
+      const scale = 1.001; // Make wireframe 0.1% larger
+      const wireframeGeometry = new THREE.BoxGeometry(
+        this.size.width * scale,
+        this.size.height * scale,
+        this.size.depth * scale
+      );
+      wireframe.geometry = new THREE.EdgesGeometry(wireframeGeometry);
     }
 
     // Update front face geometry
