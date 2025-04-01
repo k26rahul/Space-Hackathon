@@ -18,6 +18,12 @@ export function setupControls({ container, items, createItem }) {
   // axis: 'x', 'y', 'z'
   const itemsControllers = [];
 
+  function createNewItem(itemData) {
+    const newItem = createItem(itemData);
+    setupItemControls(newItem);
+    return newItem;
+  }
+
   function updateItemSizeRanges(item, sizeControllers) {
     sizeControllers.forEach(({ dim, ctrl }) => {
       const { min, max } = item.getSizeRange(dim);
@@ -72,6 +78,23 @@ export function setupControls({ container, items, createItem }) {
 
   function setupItemControls(item) {
     const itemFolder = itemsControlFolder.addFolder(item.name);
+
+    // Add Clone button as first control
+    itemFolder
+      .add(
+        {
+          clone: () => {
+            const newItemData = {
+              size: { ...item.size },
+              position: { ...item.position },
+            };
+            createNewItem(newItemData);
+          },
+        },
+        'clone'
+      )
+      .name('Clone');
+
     const sizeControllers = [];
     const posControllers = [];
 
@@ -128,8 +151,7 @@ export function setupControls({ container, items, createItem }) {
               z: -Math.floor(Math.random() * 51), // negative z for depth
             },
           };
-          const item = createItem(newItemData);
-          setupItemControls(item);
+          createNewItem(newItemData);
         },
       },
       'addItem'

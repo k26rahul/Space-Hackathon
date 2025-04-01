@@ -94,8 +94,20 @@ export class Item {
   }
 
   updateSize() {
-    this.mesh.geometry.dispose();
-    this.mesh.geometry = new THREE.BoxGeometry(this.size.width, this.size.height, this.size.depth);
+    // Update solid mesh
+    this.mesh.children[0].geometry.dispose();
+    this.mesh.children[0].geometry = new THREE.BoxGeometry(
+      this.size.width,
+      this.size.height,
+      this.size.depth
+    );
+
+    // Update wireframe mesh
+    this.mesh.children[1].geometry.dispose();
+    this.mesh.children[1].geometry = new THREE.EdgesGeometry(
+      new THREE.BoxGeometry(this.size.width, this.size.height, this.size.depth)
+    );
+
     this.label.position.set(0, this.size.height / 2 + 5, 0);
     this.updatePosition();
   }
