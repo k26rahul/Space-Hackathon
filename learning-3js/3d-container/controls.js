@@ -107,4 +107,26 @@ export function setupControls({ container, items }) {
 
     itemsControllers.push({ item, sizeControllers, posControllers }); // store item controllers
   });
+
+  // Intersections
+  const intersectionsFolder = gui.addFolder('Intersections');
+  const intersectionsDisplay = document.createElement('div');
+  intersectionsDisplay.className = 'intersections-display';
+  // Append the display to the folder's internal list so it toggles with the folder
+  intersectionsFolder.__ul.appendChild(intersectionsDisplay);
+
+  // Update function for intersections display
+  function updateIntersections() {
+    let html = '';
+    items.forEach(item => {
+      html += `<strong>${item.name}:</strong> `;
+      html += item.intersections.length > 0 ? item.intersections.join(', ') : 'None';
+      html += '<br/>';
+    });
+    intersectionsDisplay.innerHTML = html;
+  }
+
+  return {
+    updateIntersections,
+  };
 }

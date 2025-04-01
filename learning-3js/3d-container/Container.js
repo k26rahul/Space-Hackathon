@@ -77,9 +77,12 @@ export class Container {
   }
 
   checkIntersections() {
-    // Reset intersecting flag for all items
-    this.items.forEach(item => (item.intersecting = false));
-    // Custom intersection check: mark as intersecting only if overlap > 0 on all axes
+    // Reset intersecting flag and intersections list for all items
+    this.items.forEach(item => {
+      item.intersecting = false;
+      item.intersections = [];
+    });
+    // Custom intersection check between items
     for (let i = 0; i < this.items.length; i++) {
       const itemA = this.items[i];
       const boxA = new THREE.Box3().setFromObject(itemA.mesh);
@@ -92,8 +95,36 @@ export class Container {
         if (overlapX > 0 && overlapY > 0 && overlapZ > 0) {
           itemA.intersecting = true;
           itemB.intersecting = true;
+          itemA.intersections.push(itemB.name);
+          itemB.intersections.push(itemA.name);
         }
       }
     }
+    // Check intersection with container boundaries
+    const containerMin = {
+      x: this.position.x,
+      y: this.position.y,
+      z: this.position.z - this.size.depth,
+    };
+    const containerMax = {
+      x: this.position.x + this.size.width,
+      y: this.position.y + this.size.height,
+      z: this.position.z,
+    };
+    const relaxation = 0.1; // minimum relaxation margin to prevent false positives
+    this.items.forEach(item => {
+      const box = new THREE.Box3().setFromObject(item.mesh);
+      if (
+        box.min.x < containerMin.x - relaxation ||
+        box.max.x > containerMax.x + relaxation ||
+        box.min.y < containerMin.y - relaxation ||
+        box.max.y > containerMax.y + relaxation ||
+        box.min.z < containerMin.z - relaxation ||
+        box.max.z > containerMax.z + relaxation
+      ) {
+        item.intersecting = true;
+        item.intersections.push('container');
+      }
+    });
   }
 }
