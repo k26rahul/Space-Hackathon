@@ -58,16 +58,20 @@ scene.add(container.mesh);
 const axesHelper = new THREE.AxesHelper(150);
 scene.add(axesHelper);
 
+const enableTransformControl = false; // Set to true to enable transform controls
 const items = itemsData.map(data => new Item(data.name, data.size, data.position));
 items.forEach(item => {
   container.addItem(item);
   item.setContainer(container);
 
-  if (item.data?.enableTransformControl) {
+  if (enableTransformControl) {
     const control = new TransformControls(orthographicCamera, renderer.domElement);
     control.attach(item.mesh);
     control.addEventListener('dragging-changed', event => {
       controls.enabled = !event.value;
+    });
+    control.addEventListener('objectChange', () => {
+      item.updatePositionFromMesh();
     });
     scene.add(control);
   }
@@ -84,7 +88,8 @@ function animate() {
 
   container.checkIntersections(); // check for intersections
   guiControls.updateIntersections(); // update GUI intersections display
-  items.forEach(item => item.updateVisual()); // update item visuals (flashing)
+  items.forEach(item => item.updateVisual()); // flashing on intersection
+  guiControls.updateItemProperties(); // update GUI item properties display
 
   renderer.render(scene, orthographicCamera);
   labelRenderer.render(scene, orthographicCamera);

@@ -38,7 +38,7 @@ body {
   animation: flash 1s infinite;
 }
 
-.intersections-display {
+.gui-display {
   height: 100px;
   overflow: auto;
   font-size: 12px;
@@ -47,6 +47,6 @@ body {
   background-color: black;
 }
 
-ul.closed .intersections-display {
+ul.closed .gui-display {
   display: none;
 }

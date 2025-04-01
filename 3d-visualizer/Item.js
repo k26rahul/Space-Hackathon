@@ -58,6 +58,17 @@ export class Item {
     this.mesh.position.set(posX, posY, posZ);
   }
 
+  updatePositionFromMesh() {
+    const containerSize = this.container.size;
+    const offsetX = containerSize.width / 2;
+    const offsetY = containerSize.height / 2;
+    const offsetZ = containerSize.depth / 2;
+
+    this.position.x = this.mesh.position.x + offsetX - this.size.width / 2;
+    this.position.y = this.mesh.position.y + offsetY - this.size.height / 2;
+    this.position.z = this.mesh.position.z - offsetZ + this.size.depth / 2;
+  }
+
   updateSize() {
     this.mesh.geometry.dispose();
     this.mesh.geometry = new THREE.BoxGeometry(this.size.width, this.size.height, this.size.depth);
