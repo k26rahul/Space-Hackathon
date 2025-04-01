@@ -14,6 +14,8 @@ export class Item {
     this.mesh.add(this.label);
 
     this.container = null;
+    this.intersecting = false; // new property for collision detection
+    this.defaultBorderColor = hexToRgb(this.color); // store default
   }
 
   setContainer(container) {
@@ -60,5 +62,14 @@ export class Item {
     this.mesh.geometry = new THREE.BoxGeometry(this.size.width, this.size.height, this.size.depth);
     this.label.position.set(0, this.size.height / 2 + 5, 0);
     this.updatePosition();
+  }
+
+  updateVisual() {
+    // Visual indication: set label border color to red if intersecting
+    if (this.intersecting) {
+      this.label.element.style.borderColor = 'red';
+    } else {
+      this.label.element.style.borderColor = this.defaultBorderColor;
+    }
   }
 }

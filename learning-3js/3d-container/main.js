@@ -73,6 +73,10 @@ setupControls({
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
+
+  container.checkIntersections();
+  items.forEach(item => item.updateVisual());
+
   renderer.render(scene, orthographicCamera);
   labelRenderer.render(scene, orthographicCamera);
 }

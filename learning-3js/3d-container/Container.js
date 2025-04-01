@@ -75,4 +75,25 @@ export class Container {
     this.items.push(item);
     this.mesh.add(item.mesh);
   }
+
+  checkIntersections() {
+    // Reset intersecting flag for all items
+    this.items.forEach(item => (item.intersecting = false));
+    // Custom intersection check: mark as intersecting only if overlap > 0 on all axes
+    for (let i = 0; i < this.items.length; i++) {
+      const itemA = this.items[i];
+      const boxA = new THREE.Box3().setFromObject(itemA.mesh);
+      for (let j = i + 1; j < this.items.length; j++) {
+        const itemB = this.items[j];
+        const boxB = new THREE.Box3().setFromObject(itemB.mesh);
+        const overlapX = Math.min(boxA.max.x, boxB.max.x) - Math.max(boxA.min.x, boxB.min.x);
+        const overlapY = Math.min(boxA.max.y, boxB.max.y) - Math.max(boxA.min.y, boxB.min.y);
+        const overlapZ = Math.min(boxA.max.z, boxB.max.z) - Math.max(boxA.min.z, boxB.min.z);
+        if (overlapX > 0 && overlapY > 0 && overlapZ > 0) {
+          itemA.intersecting = true;
+          itemB.intersecting = true;
+        }
+      }
+    }
+  }
 }
