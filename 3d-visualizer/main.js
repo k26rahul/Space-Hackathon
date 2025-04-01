@@ -63,12 +63,14 @@ items.forEach(item => {
   container.addItem(item);
   item.setContainer(container);
 
-  const control = new TransformControls(orthographicCamera, renderer.domElement);
-  control.attach(item.mesh);
-  control.addEventListener('dragging-changed', event => {
-    controls.enabled = !event.value;
-  });
-  scene.add(control);
+  if (item.data?.enableTransformControl) {
+    const control = new TransformControls(orthographicCamera, renderer.domElement);
+    control.attach(item.mesh);
+    control.addEventListener('dragging-changed', event => {
+      controls.enabled = !event.value;
+    });
+    scene.add(control);
+  }
 });
 
 const guiControls = setupControls({
@@ -80,9 +82,9 @@ function animate() {
   requestAnimationFrame(animate);
   controls.update();
 
-  container.checkIntersections();
-  guiControls.updateIntersections();
-  items.forEach(item => item.updateVisual());
+  container.checkIntersections(); // check for intersections
+  guiControls.updateIntersections(); // update GUI intersections display
+  items.forEach(item => item.updateVisual()); // update item visuals (flashing)
 
   renderer.render(scene, orthographicCamera);
   labelRenderer.render(scene, orthographicCamera);
