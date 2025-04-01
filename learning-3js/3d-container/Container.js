@@ -12,12 +12,18 @@ export class Container {
 
   createContainerMesh() {
     const geometry = new THREE.BoxGeometry(this.size.width, this.size.height, this.size.depth);
-    const material = new THREE.MeshBasicMaterial({
-      color: 0x00ff00,
-      wireframe: true,
-    });
-    const containerMesh = new THREE.Mesh(geometry, material);
 
+    // Create an invisible mesh for the container
+    const containerMaterial = new THREE.MeshBasicMaterial({ visible: false });
+    const containerMesh = new THREE.Mesh(geometry, containerMaterial);
+
+    // Create wireframe edges without diagonal lines
+    const edges = new THREE.EdgesGeometry(geometry);
+    const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+    const wireframe = new THREE.LineSegments(edges, edgeMaterial);
+    containerMesh.add(wireframe);
+
+    // Create a front face with a transparent material
     const faceGeometry = new THREE.PlaneGeometry(this.size.width, this.size.height);
     const faceMaterial = new THREE.MeshBasicMaterial({
       color: 0x00ff00,
@@ -44,6 +50,13 @@ export class Container {
     // Update container mesh geometry
     this.mesh.geometry.dispose();
     this.mesh.geometry = new THREE.BoxGeometry(this.size.width, this.size.height, this.size.depth);
+
+    // Update wireframe geometry
+    const wireframe = this.mesh.children.find(child => child.type === 'LineSegments');
+    if (wireframe) {
+      wireframe.geometry.dispose();
+      wireframe.geometry = new THREE.EdgesGeometry(this.mesh.geometry);
+    }
 
     // Update front face geometry
     this.frontFace.geometry.dispose();
