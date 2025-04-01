@@ -36,9 +36,14 @@ const orthographicCamera = new THREE.OrthographicCamera(
 const controls = new OrbitControls(orthographicCamera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
+// controls.autoRotate = true;
+// controls.autoRotateSpeed = 1;
 
-orthographicCamera.position.set(50, 50, 150);
-controls.target.set(50, 50, 0);
+{
+  orthographicCamera.position.set(100, 100, 150);
+  orthographicCamera.zoom = 0.9;
+  controls.target.set(50, 50, 0);
+}
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
 scene.add(ambientLight);
@@ -53,7 +58,7 @@ const items = [
 
 items.forEach(item => {
   container.addItem(item);
-  item.setContainerSize(container.size);
+  item.setContainer(container);
   item.updatePosition();
 });
 

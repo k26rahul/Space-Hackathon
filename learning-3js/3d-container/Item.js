@@ -13,11 +13,11 @@ export class Item {
     this.label = this.createLabel();
     this.mesh.add(this.label);
 
-    this.containerSize = null;
+    this.container = null;
   }
 
-  setContainerSize(containerSize) {
-    this.containerSize = containerSize;
+  setContainer(container) {
+    this.container = container;
   }
 
   createItemMesh() {
@@ -43,9 +43,10 @@ export class Item {
   updatePosition() {
     const { width, height, depth } = this.size;
     const { x, y, z } = this.position;
-    const offsetX = this.containerSize.width / 2;
-    const offsetY = this.containerSize.height / 2;
-    const offsetZ = this.containerSize.depth / 2;
+    const containerSize = this.container.size;
+    const offsetX = containerSize.width / 2;
+    const offsetY = containerSize.height / 2;
+    const offsetZ = containerSize.depth / 2;
 
     const posX = x + width / 2 - offsetX;
     const posY = y + height / 2 - offsetY;
