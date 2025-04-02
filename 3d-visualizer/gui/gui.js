@@ -24,7 +24,7 @@ function exportItemsData(items) {
   copyToClipboard(jsonString);
 }
 
-export function setupControls({ items, createItem }) {
+export function setupControls({ items, createItem, container }) {
   // each { item, sizeControllers: [{dim, ctrl}], posControllers: [{axis, ctrl}] }
   // dim: 'width', 'height', 'depth'
   // axis: 'x', 'y', 'z'
@@ -201,10 +201,7 @@ export function setupControls({ items, createItem }) {
   function updateItemProperties() {
     let html = '';
     let totalItemVolume = 0;
-    const containerVolume =
-      items[0]?.container.size.width *
-      items[0]?.container.size.height *
-      items[0]?.container.size.depth;
+    const containerVolume = container.size.width * container.size.height * container.size.depth;
 
     html += '<strong>Format</strong><br/>';
     html += 'Size: width, height, depth<br/>';

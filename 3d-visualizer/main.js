@@ -137,9 +137,9 @@ dataLoaded.then(data => {
   data.items.forEach(item => createItem(item, false));
 
   const guiControls = setupControls({
-    container,
     items,
-    createItem, // Pass the createItem function to controls
+    createItem,
+    container,
   });
 
   function animate() {
