@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import { axisToDimension } from '../utils.js';
 
 export class Container {
-  constructor(size, position = { x: 0, y: 0, z: 0 }) {
-    this.size = size;
-    this.position = position;
+  constructor({ size, position }) {
+    this.size = size; // Object with width, height, and depth properties
+    this.position = position; // Object with x, y, and z properties
 
     this.items = []; // Array to hold items in the container
     this.mesh = this.createContainerMesh();
@@ -53,36 +53,6 @@ export class Container {
     );
   }
 
-  updateSize() {
-    // Update container mesh geometry
-    this.mesh.geometry.dispose();
-    this.mesh.geometry = new THREE.BoxGeometry(this.size.width, this.size.height, this.size.depth);
-
-    // Update wireframe geometry
-    const wireframe = this.mesh.children.find(child => child.type === 'LineSegments');
-    if (wireframe) {
-      wireframe.geometry.dispose();
-      const scale = 1.001; // Make wireframe 0.1% larger
-      const wireframeGeometry = new THREE.BoxGeometry(
-        this.size.width * scale,
-        this.size.height * scale,
-        this.size.depth * scale
-      );
-      wireframe.geometry = new THREE.EdgesGeometry(wireframeGeometry);
-    }
-
-    // Update front face geometry
-    this.frontFace.geometry.dispose();
-    this.frontFace.geometry = new THREE.PlaneGeometry(this.size.width, this.size.height);
-    this.frontFace.position.set(0, 0, this.size.depth / 2 + 1);
-    this.updatePosition();
-
-    // Update positions of contained items
-    this.items.forEach(item => {
-      item.updatePosition();
-    });
-  }
-
   addItem(item) {
     this.items.push(item); // Add item to the container's items array
     this.mesh.add(item.mesh); // Add item mesh to the container mesh
@@ -94,6 +64,7 @@ export class Container {
       item.intersecting = false;
       item.intersections = [];
     });
+
     // Custom intersection check between items
     for (let i = 0; i < this.items.length; i++) {
       const itemA = this.items[i];
@@ -112,6 +83,7 @@ export class Container {
         }
       }
     }
+
     // Check intersection with container boundaries
     const containerMin = {
       x: this.position.x,

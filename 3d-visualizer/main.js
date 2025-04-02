@@ -53,7 +53,10 @@ controls.dampingFactor = 0.05;
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
 scene.add(ambientLight);
 
-const container = new Container({ width: 100, height: 100, depth: 100 });
+const container = new Container({
+  size: { width: 100, height: 100, depth: 100 },
+  position: { x: 0, y: 0, z: 0 },
+});
 scene.add(container.mesh);
 
 const axesHelper = new THREE.AxesHelper(150);
