@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { axisToDimension } from './utils.js';
+import { axisToDimension } from '../utils.js';
 
 export class Container {
   constructor(size, position = { x: 0, y: 0, z: 0 }) {

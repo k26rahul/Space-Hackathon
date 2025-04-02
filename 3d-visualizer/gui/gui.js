@@ -1,5 +1,5 @@
 import { GUI } from 'dat.gui';
-import { GuiDisplay } from './gui-display.js';
+import { GuiTextDisplay } from './GuiTextDisplay.js';
 
 const gui = new GUI();
 
@@ -160,11 +160,11 @@ export function setupControls({ container, items, createItem }) {
 
   // Intersections
   const intersectionsFolder = gui.addFolder('Intersections');
-  const intersectionsDisplay = new GuiDisplay(intersectionsFolder);
+  const intersectionsDisplay = new GuiTextDisplay(intersectionsFolder);
 
   // Item Properties
   const itemPropertiesFolder = gui.addFolder('Item Properties');
-  const propertiesDisplay = new GuiDisplay(itemPropertiesFolder);
+  const propertiesDisplay = new GuiTextDisplay(itemPropertiesFolder);
 
   // Add Export button to Item Properties folder
   gui

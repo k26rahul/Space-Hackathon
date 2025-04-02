@@ -1,4 +1,4 @@
-export class GuiDisplay {
+export class GuiTextDisplay {
   constructor(folder) {
     this.element = document.createElement('div');
     this.element.className = `gui-display`;

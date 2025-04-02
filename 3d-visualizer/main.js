@@ -1,13 +1,14 @@
 import * as THREE from 'three';
 
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
-import { TransformControls } from 'three/addons/controls/TransformControls.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
-import { setupControls } from './controls.js';
-import { Container } from './Container.js';
-import { Item } from './Item.js';
-import { itemsData } from './items.js';
+import { Item } from './components/Item.js';
+import { Container } from './components/Container.js';
+
+import { itemsData } from './data/items.js';
+import { setupControls } from './gui/gui.js';
 
 const canvasContainer = document.getElementById('canvas-container');
 

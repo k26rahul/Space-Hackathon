@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-import { ColorProvider } from './utils.js';
+import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
+import { ColorProvider } from '../utils.js';
 
 const colorProvider = new ColorProvider();
 const showLabelsAlways = false; // true: show labels always, false: show labels only during intersections
