@@ -51,7 +51,8 @@ export function setupControls({ items, createItem, container, onDatasetChange })
     )
     .name('Reload Dataset');
 
-  // each { item, sizeControllers: [{dim, ctrl}], posControllers: [{axis, ctrl}] }
+  // Position controllers for each item
+  // Format: { item, posControllers: [{axis, ctrl}] }
   // dim: 'width', 'height', 'depth'
   // axis: 'x', 'y', 'z'
   const itemsControllers = [];
@@ -128,7 +129,6 @@ export function setupControls({ items, createItem, container, onDatasetChange })
       )
       .name('Clone');
 
-    const sizeControllers = [];
     const posControllers = [];
 
     // Items Size
@@ -137,11 +137,10 @@ export function setupControls({ items, createItem, container, onDatasetChange })
 
     Object.keys(item.size).forEach(dim => {
       const { min, max } = item.getSizeRange(dim);
-      const ctrl = sizeFolder.add(item.size, dim, min, max, itemSizeStep).onChange(value => {
+      sizeFolder.add(item.size, dim, min, max, itemSizeStep).onChange(value => {
         item.updateSize();
         updateItemPosRanges(item, posControllers); // update item position sliders when item size changes
       });
-      sizeControllers.push({ dim, ctrl });
     });
 
     // Items Position
@@ -158,7 +157,7 @@ export function setupControls({ items, createItem, container, onDatasetChange })
       posControllers.push({ axis, ctrl });
     });
 
-    itemsControllers.push({ item, sizeControllers, posControllers }); // store item controllers
+    itemsControllers.push({ item, posControllers }); // store only position controllers
   }
 
   // Setup controls for existing items
