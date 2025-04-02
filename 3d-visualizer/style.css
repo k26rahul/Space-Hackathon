@@ -14,13 +14,13 @@ body {
 .label {
   color: white;
   background-color: rgba(0, 0, 0, 0.7);
-  padding: 2px 6px;
+  padding: 4px 8px;
   border: 2px solid white;
   border-radius: 4px;
   font-size: 12px;
-  white-space: nowrap;
   pointer-events: none;
   user-select: none;
+  text-align: center;
 }
 
 @keyframes flash {

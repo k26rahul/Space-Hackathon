@@ -1,4 +1,4 @@
-const EXPORT_SET = 1;
+const EXPORT_SET = 2;
 
 export const dataLoaded = fetch(`./data/set${EXPORT_SET}.json`)
   .then(res => res.json())

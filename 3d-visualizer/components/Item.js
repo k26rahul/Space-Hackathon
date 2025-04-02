@@ -58,7 +58,10 @@ export class Item {
   createLabel() {
     const labelDiv = document.createElement('div');
     labelDiv.className = 'label';
-    labelDiv.textContent = this.name;
+    const sizeInfo = `${this.size.width}x${this.size.height}x${this.size.depth}`;
+    const posInfo = `(${this.position.x},${this.position.y},${this.position.z})`;
+    labelDiv.textContent = `${this.name}\n${sizeInfo}\n${posInfo}`;
+    labelDiv.style.whiteSpace = 'pre'; // Preserve line breaks
     const label = new CSS2DObject(labelDiv);
     label.position.set(0, this.size.height / 2 + 5, 0);
     return label;
@@ -149,6 +152,6 @@ export class Item {
   }
 
   getSizeRange(dim) {
-    return { min: 1, max: this.container.size[dim] };
+    return { min: 5, max: this.container.size[dim] };
   }
 }
