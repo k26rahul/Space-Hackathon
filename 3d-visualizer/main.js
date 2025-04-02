@@ -2,12 +2,11 @@ import * as THREE from 'three';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 import { Item } from './components/Item.js';
 import { Container } from './components/Container.js';
 
-import { loadDataset, getStoredDataset } from './data/data.js';
+import { loadDataset, getStoredDatasetIndex } from './data/data.js';
 import { setupControls } from './gui/gui.js';
 
 const canvasContainer = document.getElementById('canvas-container');
@@ -127,7 +126,7 @@ function initializeItems(data) {
 }
 
 // Initialize with default dataset and setup controls
-loadDataset(getStoredDataset()).then(data => {
+loadDataset(getStoredDatasetIndex()).then(data => {
   guiControls = setupControls({
     items,
     createItem,

@@ -1,9 +1,13 @@
 import { GUI } from 'lil-gui';
 import { GuiTextDisplay } from './GuiTextDisplay.js';
-import { copyToClipboard } from '../utils.js';
-import { TOTAL_SETS, DEFAULT_SET, getStoredDataset, setStoredDataset } from '../data/data.js';
+import {
+  TOTAL_SETS,
+  getStoredDatasetIndex,
+  setStoredDatasetIndex,
+  exportDataset,
+} from '../data/data.js';
 
-const gui = new GUI({ closed: true });
+const gui = new GUI();
 
 export const settings = {
   showLabelOnIntersection: true,
@@ -12,21 +16,17 @@ export const settings = {
 gui.add(settings, 'showLabelOnIntersection').name('Show Label on Intersection');
 
 // Step control variables
-const itemSizeStep = 5;
-const itemPositionStep = 5;
-
-function exportItemsData(items) {
-  const itemsData = items.map(item => ({
-    size: { ...item.size },
-    position: { ...item.position },
-  }));
-
-  const jsonString = JSON.stringify({ items: itemsData });
-  copyToClipboard(jsonString);
-}
+const ITEM_SIZE_STEP = 5;
+const ITEM_POSITION_STEP = 5;
 
 export function setupControls({ items, createItem, container, onDatasetChange }) {
-  const datasetConfig = { currentSet: getStoredDataset() };
+  const datasetConfig = { currentSet: getStoredDatasetIndex() };
+
+  function loadDataset(datasetIndex) {
+    setStoredDatasetIndex(datasetIndex);
+    cleanupItemControls();
+    onDatasetChange(datasetIndex);
+  }
 
   // Add Dataset selector at the top
   gui
@@ -36,17 +36,13 @@ export function setupControls({ items, createItem, container, onDatasetChange })
       Array.from({ length: TOTAL_SETS }, (_, i) => i)
     )
     .name('Dataset')
-    .onChange(value => {
-      setStoredDataset(value);
-      cleanupItemControls();
-      onDatasetChange(value);
-    });
+    .onChange(value => loadDataset(value));
 
   // Add Reload button
   gui
     .add(
       {
-        reload: () => onDatasetChange(datasetConfig.currentSet),
+        reload: () => loadDataset(datasetConfig.currentSet),
       },
       'reload'
     )
@@ -159,7 +155,7 @@ export function setupControls({ items, createItem, container, onDatasetChange })
 
     Object.keys(item.size).forEach(dim => {
       const { min, max } = item.getSizeRange(dim);
-      sizeFolder.add(item.size, dim, min, max, itemSizeStep).onChange(value => {
+      sizeFolder.add(item.size, dim, min, max, ITEM_SIZE_STEP).onChange(value => {
         item.updateSize();
         updateItemPosRanges(item, posControllers); // update item position sliders when item size changes
       });
@@ -172,7 +168,7 @@ export function setupControls({ items, createItem, container, onDatasetChange })
     Object.keys(item.position).forEach(axis => {
       const { min, max } = item.getPositionRange(axis);
       const ctrl = posFolder
-        .add(item.position, axis, min, max, itemPositionStep)
+        .add(item.position, axis, min, max, ITEM_POSITION_STEP)
         .onChange(value => {
           item.updatePosition();
         });
@@ -227,7 +223,7 @@ export function setupControls({ items, createItem, container, onDatasetChange })
   gui
     .add(
       {
-        exportItems: () => exportItemsData(items),
+        exportItems: () => exportDataset(items),
       },
       'exportItems'
     )
@@ -275,7 +271,6 @@ export function setupControls({ items, createItem, container, onDatasetChange })
   return {
     updateIntersections,
     updateItemProperties,
-    cleanupItemControls,
     initializeItemControls,
   };
 }

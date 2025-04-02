@@ -1,14 +1,16 @@
-export const TOTAL_SETS = 6;
-export const STORAGE_KEY = 'selectedDataset';
-export const DEFAULT_SET = 2;
+import { copyToClipboard } from '../utils.js';
 
-export function getStoredDataset() {
+export const TOTAL_SETS = 6;
+export const DEFAULT_SET = 2;
+export const STORAGE_KEY = 'selectedDatasetIndex';
+
+export function getStoredDatasetIndex() {
   const stored = localStorage.getItem(STORAGE_KEY);
-  return stored ? parseInt(stored) : 2; // fallback to 2 if nothing stored
+  return stored ? parseInt(stored) : DEFAULT_SET; // fallback to DEFAULT_SET if not found
 }
 
-export function setStoredDataset(setNumber) {
-  localStorage.setItem(STORAGE_KEY, setNumber.toString());
+export function setStoredDatasetIndex(datasetIndex) {
+  localStorage.setItem(STORAGE_KEY, datasetIndex.toString());
 }
 
 export function loadDataset(setNumber) {
@@ -18,4 +20,14 @@ export function loadDataset(setNumber) {
       console.error('Error loading item set:', error);
       throw error;
     });
+}
+
+export function exportDataset(items) {
+  const itemsData = items.map(item => ({
+    size: { ...item.size },
+    position: { ...item.position },
+  }));
+
+  const jsonString = JSON.stringify({ items: itemsData });
+  copyToClipboard(jsonString);
 }
