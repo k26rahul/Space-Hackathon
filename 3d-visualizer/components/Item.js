@@ -11,6 +11,7 @@ export class Item {
     this.size = size;
     this.position = position;
     this.color = colorProvider.getNextColor();
+    this.visible = true; // Add visibility property
 
     this.mesh = this.createItemMesh();
     this.label = this.createLabel();
@@ -109,16 +110,21 @@ export class Item {
   }
 
   updateVisual() {
+    this.mesh.visible = this.visible; // Update mesh visibility
+
     let showLabel = false;
-    if (this.intersecting && settings.showLabelOnIntersection) {
-      this.label.element.classList.add('flashing'); // apply flashing animation
-      showLabel = true;
-    } else {
-      this.label.element.classList.remove('flashing'); // remove flashing animation
-    }
-    if (this.isHovered) {
-      // always show label when hovered
-      showLabel = true;
+    if (this.visible) {
+      // Only show label if item is visible
+      if (this.intersecting && settings.showLabelOnIntersection) {
+        this.label.element.classList.add('flashing'); // apply flashing animation
+        showLabel = true;
+      } else {
+        this.label.element.classList.remove('flashing'); // remove flashing animation
+      }
+      if (this.isHovered) {
+        // always show label when hovered
+        showLabel = true;
+      }
     }
     this.label.visible = showLabel;
 

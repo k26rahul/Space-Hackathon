@@ -47,7 +47,42 @@ export function setupControls({ items, createItem }) {
   const itemsControlFolder = gui.addFolder('Items');
   itemsControlFolder.close();
 
+  // Add Visibility Controls folder
+  const visibilityFolder = gui.addFolder('Visibility');
+  visibilityFolder.close();
+
+  // Add Toggle All button
+  const visibilityState = { allVisible: true };
+  const toggleAllControl = visibilityFolder
+    .add(visibilityState, 'allVisible')
+    .name('Toggle All')
+    .onChange(value => {
+      // Update all items and their controls
+      Object.entries(visibilityControls).forEach(([name, control]) => {
+        control.setValue(value);
+        // No need to call updateVisual() here since setValue will trigger the control's onChange
+      });
+    });
+
+  // Store visibility controllers
+  const visibilityControls = {};
+
+  function addVisibilityControl(item) {
+    const control = visibilityFolder
+      .add(item, 'visible')
+      .name(item.name)
+      .onChange(() => {
+        item.updateVisual();
+        // Update all-visible state and its display
+        visibilityState.allVisible = items.every(item => item.visible);
+        toggleAllControl.updateDisplay();
+      });
+    visibilityControls[item.name] = control;
+  }
+
   function setupItemControls(item) {
+    addVisibilityControl(item);
+
     const itemFolder = itemsControlFolder.addFolder(item.name);
     itemFolder.close();
 
