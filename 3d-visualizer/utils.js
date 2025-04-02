@@ -33,3 +33,7 @@ export async function copyToClipboard(text) {
     return false;
   }
 }
+
+export function createSequentialArray(length) {
+  return Array.from({ length }, (_, i) => i);
+}

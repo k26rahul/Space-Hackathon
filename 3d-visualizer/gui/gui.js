@@ -1,6 +1,7 @@
 import { GUI } from 'lil-gui';
 import { GuiTextDisplay } from './GuiTextDisplay.js';
 import { TOTAL_SETS, getStoredSetNumber, setStoredSetNumber, exportDataset } from '../data/data.js';
+import { createSequentialArray } from '../utils.js';
 
 const gui = new GUI();
 
@@ -24,11 +25,7 @@ export function setupControls({ items, createItem, container, onDatasetChange })
 
   // Add Dataset selector at the top
   gui
-    .add(
-      settings,
-      'currentSetNumber',
-      Array.from({ length: TOTAL_SETS }, (_, i) => i)
-    )
+    .add(settings, 'currentSetNumber', createSequentialArray(TOTAL_SETS))
     .name('Dataset')
     .onChange(value => loadDataset(value));
 
