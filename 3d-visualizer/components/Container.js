@@ -37,6 +37,7 @@ export class Container {
       transparent: true,
       opacity: 0.2,
       side: THREE.DoubleSide,
+      depthWrite: false, // Add this line to make the face non-blocking
     });
     this.frontFace = new THREE.Mesh(faceGeometry, faceMaterial);
     this.frontFace.position.set(0, 0, this.size.depth / 2 + 1); // +1 to avoid z-fighting

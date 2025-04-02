@@ -73,12 +73,10 @@ const mouse = new THREE.Vector2();
 window.addEventListener('mousemove', onMouseMove);
 
 function onMouseMove(event) {
-  // Calculate mouse position in normalized device coordinates (-1 to +1)
   const rect = renderer.domElement.getBoundingClientRect();
   mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-  // Update the picking ray with the camera and mouse position
   raycaster.setFromCamera(mouse, orthographicCamera);
 
   // Reset hover state for all items
@@ -86,16 +84,16 @@ function onMouseMove(event) {
     item.isHovered = false;
   });
 
-  // Find intersected objects
-  const intersects = raycaster.intersectObjects(scene.children, true);
+  // Find intersected objects, including those behind the container
+  const allIntersects = raycaster.intersectObjects(scene.children, true);
 
-  // Set hover state for intersected items
-  for (const intersect of intersects) {
-    // Check if the intersected object is the solid mesh (first child) of any item's group
-    const item = items.find(item => item.mesh.children[0] === intersect.object);
-    if (item) {
+  // Get all items that are intersected, not just the first one
+  for (const intersect of allIntersects) {
+    const item = items.find(item => item.mesh.children.some(child => child === intersect.object));
+    if (item && item.visible) {
+      // Only break if the item is visible
       item.isHovered = true;
-      break; // Only highlight the first intersected item
+      break;
     }
   }
 }
