@@ -200,12 +200,31 @@ export function setupControls({ items, createItem }) {
   // Update function for item properties display
   function updateItemProperties() {
     let html = '';
+    let totalItemVolume = 0;
+    const containerVolume =
+      items[0]?.container.size.width *
+      items[0]?.container.size.height *
+      items[0]?.container.size.depth;
+
+    html += '<strong>Format</strong><br/>';
+    html += 'Size: width, height, depth<br/>';
+    html += 'Position: x, y, z<br/><br/>';
+
     items.forEach(item => {
+      const itemVolume = item.size.width * item.size.height * item.size.depth;
+      totalItemVolume += itemVolume;
+
       html += `<strong>${item.name}</strong><br/>`;
       html += `Size: ${item.size.width}, ${item.size.height}, ${item.size.depth}<br/>`;
       html += `Position: ${item.position.x}, ${item.position.y}, ${item.position.z}<br/>`;
       html += '<br/>';
     });
+
+    html += `<strong>Volume Statistics</strong><br/>`;
+    html += `Container Volume: ${containerVolume / 1000}K cubic units<br/>`;
+    html += `Total Items Volume: ${totalItemVolume / 1000}K cubic units<br/>`;
+    html += `Space Utilization: ${((totalItemVolume / containerVolume) * 100).toFixed(1)}%<br/>`;
+
     propertiesDisplay.update(html);
   }
 
