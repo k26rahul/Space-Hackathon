@@ -29,3 +29,14 @@ export class ColorProvider {
     return color;
   }
 }
+
+export async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    console.log('Data copied to clipboard!');
+    return true;
+  } catch (err) {
+    console.error('Failed to copy to clipboard:', err);
+    return false;
+  }
+}

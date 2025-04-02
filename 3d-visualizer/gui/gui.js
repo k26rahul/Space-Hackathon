@@ -1,18 +1,24 @@
 import { GUI } from 'dat.gui';
 import { GuiTextDisplay } from './GuiTextDisplay.js';
+import { copyToClipboard } from '../utils.js';
 
 const gui = new GUI();
 
 // Step control variables
-const containerSizeStep = 1;
-const containerPositionStep = 1;
-const itemSizeStep = 1;
-const itemPositionStep = 1;
+const itemSizeStep = 5;
+const itemPositionStep = 5;
 
-export function setupControls({ container, items, createItem }) {
-  // { x: controller, y: controller, ... }
-  const containerPosControllers = {};
+function exportItemsData(items) {
+  const itemsData = items.map(item => ({
+    size: { ...item.size },
+    position: { ...item.position },
+  }));
 
+  const jsonString = JSON.stringify({ items: itemsData });
+  copyToClipboard(jsonString);
+}
+
+export function setupControls({ items, createItem }) {
   // each { item, sizeControllers: [{dim, ctrl}], posControllers: [{axis, ctrl}] }
   // dim: 'width', 'height', 'depth'
   // axis: 'x', 'y', 'z'
@@ -24,54 +30,12 @@ export function setupControls({ container, items, createItem }) {
     return newItem;
   }
 
-  function updateItemSizeRanges(item, sizeControllers) {
-    sizeControllers.forEach(({ dim, ctrl }) => {
-      const { min, max } = item.getSizeRange(dim);
-      ctrl.min(min).max(max).updateDisplay();
-    });
-  }
-
   function updateItemPosRanges(item, posControllers) {
     posControllers.forEach(({ axis, ctrl }) => {
       const { min, max } = item.getPositionRange(axis);
       ctrl.min(min).max(max).updateDisplay();
     });
   }
-
-  // Container
-  const containerFolder = gui.addFolder('Container');
-
-  // Container Size
-  const containerSizeFolder = containerFolder.addFolder('Size');
-  Object.keys(container.size).forEach(dim => {
-    containerSizeFolder.add(container.size, dim, 0, 300, containerSizeStep).onChange(value => {
-      container.updateSize();
-
-      // update container position sliders when container size changes
-      Object.keys(container.position).forEach(axis => {
-        const { min, max } = container.getPositionRange(axis);
-        containerPosControllers[axis].min(min).max(max).updateDisplay();
-      });
-
-      // update items size and position sliders when container size changes
-      itemsControllers.forEach(({ item, sizeControllers, posControllers }) => {
-        updateItemSizeRanges(item, sizeControllers);
-        updateItemPosRanges(item, posControllers);
-      });
-    });
-  });
-
-  // Container Position
-  const containerPosFolder = containerFolder.addFolder('Position');
-  Object.keys(container.position).forEach(axis => {
-    const { min, max } = container.getPositionRange(axis);
-    const ctrl = containerPosFolder
-      .add(container.position, axis, min, max, containerPositionStep)
-      .onChange(value => {
-        container.updatePosition();
-      });
-    containerPosControllers[axis] = ctrl; // store controller for later use
-  });
 
   // Items
   const itemsControlFolder = gui.addFolder('Items');
@@ -106,8 +70,7 @@ export function setupControls({ container, items, createItem }) {
       const { min, max } = item.getSizeRange(dim);
       const ctrl = sizeFolder.add(item.size, dim, min, max, itemSizeStep).onChange(value => {
         item.updateSize();
-        // update item position sliders when item size changes
-        updateItemPosRanges(item, posControllers);
+        updateItemPosRanges(item, posControllers); // update item position sliders when item size changes
       });
       sizeControllers.push({ dim, ctrl });
     });
@@ -170,21 +133,7 @@ export function setupControls({ container, items, createItem }) {
   gui
     .add(
       {
-        exportItems: () => {
-          const itemsData = items.map(item => ({
-            size: { ...item.size },
-            position: { ...item.position },
-          }));
-          const jsonString = JSON.stringify({ items: itemsData });
-          navigator.clipboard
-            .writeText(jsonString)
-            .then(() => {
-              console.log('Items data copied to clipboard!');
-            })
-            .catch(err => {
-              console.error('Failed to copy to clipboard:', err);
-            });
-        },
+        exportItems: () => exportItemsData(items),
       },
       'exportItems'
     )
