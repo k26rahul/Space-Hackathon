@@ -66,6 +66,32 @@ export function setupControls({ items, createItem, container, onDatasetChange })
   const visibilityFolder = gui.addFolder('Visibility');
   visibilityFolder.close();
 
+  // Add Animation button
+  visibilityFolder
+    .add(
+      {
+        animateVisibility: () => {
+          // Get all visibility controls
+          const controls = Object.values(visibilityControls);
+          if (controls.length === 0) return;
+
+          // First, hide all items
+          controls.forEach(control => {
+            control.setValue(false);
+          });
+
+          // Then show them one by one with delay
+          controls.forEach((control, index) => {
+            setTimeout(() => {
+              control.setValue(true);
+            }, 200 * (index + 1));
+          });
+        },
+      },
+      'animateVisibility'
+    )
+    .name('Animate Visibility');
+
   // Add Toggle All button
   const toggleAllControl = visibilityFolder
     .add(settings, 'allItemsVisible')
