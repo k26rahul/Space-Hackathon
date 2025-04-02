@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import { ColorProvider } from '../utils.js';
 import { settings } from '../gui/gui.js'; // added import
 
 const colorProvider = new ColorProvider();
+const STEP = 1;
 
 export class Item {
   constructor(name, size, position) {
@@ -159,5 +161,25 @@ export class Item {
 
   getSizeRange(dim) {
     return { min: 5, max: this.container.size[dim] };
+  }
+
+  setupTransformControl(camera, renderer, orbitControls) {
+    const control = new TransformControls(camera, renderer.domElement);
+    control.attach(this.mesh);
+
+    control.addEventListener('dragging-changed', event => {
+      orbitControls.enabled = !event.value;
+    });
+
+    control.addEventListener('objectChange', () => {
+      if (control.mode === 'translate') {
+        this.mesh.position.x = Math.round(this.mesh.position.x / STEP) * STEP;
+        this.mesh.position.y = Math.round(this.mesh.position.y / STEP) * STEP;
+        this.mesh.position.z = Math.round(this.mesh.position.z / STEP) * STEP;
+      }
+      this.updatePositionFromMesh();
+    });
+
+    return control;
   }
 }

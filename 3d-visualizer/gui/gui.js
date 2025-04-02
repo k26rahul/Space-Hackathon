@@ -38,6 +38,7 @@ export function setupControls({ items, createItem, container, onDatasetChange })
     .name('Dataset')
     .onChange(value => {
       setStoredDataset(value);
+      cleanupItemControls();
       onDatasetChange(value);
     });
 
@@ -93,6 +94,27 @@ export function setupControls({ items, createItem, container, onDatasetChange })
 
   // Store visibility controllers
   const visibilityControls = {};
+
+  function cleanupItemControls() {
+    // Remove all item folders
+    while (itemsControlFolder.children.length > 0) {
+      itemsControlFolder.children[0].destroy();
+    }
+
+    // Remove all visibility controls except Toggle All
+    while (visibilityFolder.children.length > 1) {
+      visibilityFolder.children[1].destroy();
+    }
+
+    // Clear visibility controls cache
+    Object.keys(visibilityControls).forEach(key => delete visibilityControls[key]);
+  }
+
+  function initializeItemControls(items) {
+    items.forEach(item => setupItemControls(item));
+    visibilityState.allVisible = true;
+    toggleAllControl.updateDisplay();
+  }
 
   function addVisibilityControl(item) {
     const control = visibilityFolder
@@ -253,5 +275,7 @@ export function setupControls({ items, createItem, container, onDatasetChange })
   return {
     updateIntersections,
     updateItemProperties,
+    cleanupItemControls,
+    initializeItemControls,
   };
 }

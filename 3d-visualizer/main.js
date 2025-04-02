@@ -105,29 +105,10 @@ function createItem(data, enableTransformControl = true) {
   item.setContainer(container);
   items.push(item);
   if (enableTransformControl) {
-    setupItemControls(item);
+    const control = item.setupTransformControl(orthographicCamera, renderer, controls);
+    scene.add(control);
   }
   return item;
-}
-
-// Setup item controls
-function setupItemControls(item) {
-  const control = new TransformControls(orthographicCamera, renderer.domElement);
-  control.attach(item.mesh);
-
-  control.addEventListener('dragging-changed', event => {
-    controls.enabled = !event.value;
-  });
-
-  control.addEventListener('objectChange', () => {
-    if (control.mode === 'translate') {
-      item.mesh.position.x = Math.round(item.mesh.position.x / step) * step;
-      item.mesh.position.y = Math.round(item.mesh.position.y / step) * step;
-      item.mesh.position.z = Math.round(item.mesh.position.z / step) * step;
-    }
-    item.updatePositionFromMesh();
-  });
-  scene.add(control);
 }
 
 // Cleanup items
@@ -137,29 +118,37 @@ function cleanupItems() {
   itemCounter = 1;
 }
 
-// Initialize items from data
-loadDataset(getStoredDataset()).then(data => {
-  data.items.forEach(item => createItem(item, false));
+let guiControls;
 
-  const guiControls = setupControls({
+// Initialize items from dataset
+function initializeItems(data) {
+  data.items.forEach(item => createItem(item, false));
+  guiControls.initializeItemControls(items);
+}
+
+// Initialize with default dataset and setup controls
+loadDataset(getStoredDataset()).then(data => {
+  guiControls = setupControls({
     items,
     createItem,
     container,
     onDatasetChange: setNumber => {
       cleanupItems();
       loadDataset(setNumber).then(newData => {
-        newData.items.forEach(item => createItem(item, false));
+        initializeItems(newData);
       });
     },
   });
+
+  initializeItems(data);
 
   function animate() {
     requestAnimationFrame(animate);
     controls.update();
 
     container.checkIntersections(); // check for intersections
-    guiControls.updateIntersections(); // update GUI intersections display
     items.forEach(item => item.updateVisual()); // flashing on intersection
+    guiControls.updateIntersections(); // update GUI intersections display
     guiControls.updateItemProperties(); // update GUI item properties display
 
     renderer.render(scene, orthographicCamera);
