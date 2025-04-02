@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { ColorProvider } from '../utils.js';
+import { settings } from '../gui/gui.js'; // added import
 
 const colorProvider = new ColorProvider();
-const showLabelsAlways = false; // true: show labels always, false: show labels only during intersections
 
 export class Item {
   constructor(name, size, position) {
@@ -16,15 +16,11 @@ export class Item {
     this.label = this.createLabel();
     if (this.label) {
       this.mesh.add(this.label);
-      // Initially hide label if we're not showing always
-      if (!showLabelsAlways) {
-        this.label.visible = false;
-      }
+      this.label.visible = false; // Initially hide label
     }
 
     this.container = null;
     this.intersecting = false; // flag to indicate intersection with other items
-    this.isHovered = false;
   }
 
   setContainer(container) {
@@ -113,21 +109,20 @@ export class Item {
   }
 
   updateVisual() {
-    if (this.intersecting) {
+    let showLabel = false;
+    if (this.intersecting && settings.showLabelOnIntersection) {
       this.label.element.classList.add('flashing'); // apply flashing animation
-      if (!showLabelsAlways) {
-        this.label.visible = true; // show label during intersection
-      }
+      showLabel = true;
     } else {
       this.label.element.classList.remove('flashing'); // remove flashing animation
-      if (!showLabelsAlways) {
-        this.label.visible = false; // hide label when not intersecting
-      }
     }
-
-    // Show label and make less transparent on hover
     if (this.isHovered) {
-      this.label.visible = true;
+      // always show label when hovered
+      showLabel = true;
+    }
+    this.label.visible = showLabel;
+
+    if (this.isHovered) {
       // Update solid mesh opacity
       this.mesh.children[0].material.opacity = 1.0;
       // Update wireframe opacity

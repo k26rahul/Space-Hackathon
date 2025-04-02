@@ -4,6 +4,12 @@ import { copyToClipboard } from '../utils.js';
 
 const gui = new GUI();
 
+export const settings = {
+  showLabelOnIntersection: true,
+};
+
+gui.add(settings, 'showLabelOnIntersection').name('Show Label on Intersection');
+
 // Step control variables
 const itemSizeStep = 5;
 const itemPositionStep = 5;
