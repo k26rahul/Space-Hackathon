@@ -1,6 +1,12 @@
 import { GUI } from 'lil-gui';
 import { GuiTextDisplay } from './GuiTextDisplay.js';
-import { TOTAL_SETS, getStoredSetNumber, setStoredSetNumber, exportDataset } from '../data/data.js';
+import {
+  TOTAL_SETS,
+  getStoredSetNumber,
+  setStoredSetNumber,
+  exportDataset,
+  generateRandomItemData,
+} from '../data/data.js';
 import { createSequentialArray } from '../utils.js';
 
 const gui = new GUI();
@@ -8,6 +14,7 @@ const gui = new GUI();
 export const settings = {
   showLabelOnIntersection: true,
   currentSetNumber: getStoredSetNumber(),
+  allItemsVisible: true,
 };
 
 gui.add(settings, 'showLabelOnIntersection').name('Show Label on Intersection');
@@ -18,12 +25,12 @@ const ITEM_POSITION_STEP = 5;
 
 export function setupControls({ items, createItem, container, onDatasetChange }) {
   function loadDataset(setNumber) {
-    setStoredSetNumber(setNumber);
     cleanupItemControls();
     onDatasetChange(setNumber);
+    setStoredSetNumber(setNumber);
   }
 
-  // Add Dataset selector at the top
+  // Add Dataset selector
   gui
     .add(settings, 'currentSetNumber', createSequentialArray(TOTAL_SETS))
     .name('Dataset')
@@ -40,16 +47,9 @@ export function setupControls({ items, createItem, container, onDatasetChange })
     .name('Reload Dataset');
 
   // Position controllers for each item
-  // Format: { item, posControllers: [{axis, ctrl}] }
-  // dim: 'width', 'height', 'depth'
+  // Format: [{ item, posControllers: [{ axis, ctrl }] }, ...]
   // axis: 'x', 'y', 'z'
   const itemsControllers = [];
-
-  function createNewItem(itemData) {
-    const newItem = createItem(itemData);
-    setupItemControls(newItem);
-    return newItem;
-  }
 
   function updateItemPosRanges(item, posControllers) {
     posControllers.forEach(({ axis, ctrl }) => {
@@ -58,18 +58,17 @@ export function setupControls({ items, createItem, container, onDatasetChange })
     });
   }
 
-  // Items
+  // Add Items folder
   const itemsControlFolder = gui.addFolder('Items');
   itemsControlFolder.close();
 
-  // Add Visibility Controls folder
+  // Add Visibility folder
   const visibilityFolder = gui.addFolder('Visibility');
   visibilityFolder.close();
 
   // Add Toggle All button
-  const visibilityState = { allVisible: true };
   const toggleAllControl = visibilityFolder
-    .add(visibilityState, 'allVisible')
+    .add(settings, 'allItemsVisible')
     .name('Toggle All')
     .onChange(value => {
       // Update all items and their controls
@@ -82,27 +81,6 @@ export function setupControls({ items, createItem, container, onDatasetChange })
   // Store visibility controllers
   const visibilityControls = {};
 
-  function cleanupItemControls() {
-    // Remove all item folders
-    while (itemsControlFolder.children.length > 0) {
-      itemsControlFolder.children[0].destroy();
-    }
-
-    // Remove all visibility controls except Toggle All
-    while (visibilityFolder.children.length > 1) {
-      visibilityFolder.children[1].destroy();
-    }
-
-    // Clear visibility controls cache
-    Object.keys(visibilityControls).forEach(key => delete visibilityControls[key]);
-  }
-
-  function initializeItemControls(items) {
-    items.forEach(item => setupItemControls(item));
-    visibilityState.allVisible = true;
-    toggleAllControl.updateDisplay();
-  }
-
   function addVisibilityControl(item) {
     const control = visibilityFolder
       .add(item, 'visible')
@@ -110,7 +88,7 @@ export function setupControls({ items, createItem, container, onDatasetChange })
       .onChange(() => {
         item.updateVisual();
         // Update all-visible state and its display
-        visibilityState.allVisible = items.every(item => item.visible);
+        settings.allItemsVisible = items.every(item => item.visible);
         toggleAllControl.updateDisplay();
       });
     visibilityControls[item.name] = control;
@@ -169,28 +147,33 @@ export function setupControls({ items, createItem, container, onDatasetChange })
     itemsControllers.push({ item, posControllers }); // store only position controllers
   }
 
-  // Setup controls for existing items
-  items.forEach(item => setupItemControls(item));
+  function cleanupItemControls() {
+    // Remove all item folders
+    while (itemsControlFolder.children.length > 0) {
+      itemsControlFolder.children[0].destroy();
+    }
+
+    // Remove all visibility controls except Toggle All
+    while (visibilityFolder.children.length > 1) {
+      visibilityFolder.children[1].destroy();
+    }
+
+    // Clear visibility controls cache
+    Object.keys(visibilityControls).forEach(key => delete visibilityControls[key]);
+  }
+
+  function createNewItem(itemData) {
+    const newItem = createItem(itemData);
+    setupItemControls(newItem);
+    return newItem;
+  }
 
   // Add New Item button
   gui
     .add(
       {
         addItem: () => {
-          const newItemData = {
-            size: {
-              // random size between 20 and 50
-              width: Math.floor(Math.random() * 7) * 5 + 20,
-              height: Math.floor(Math.random() * 7) * 5 + 20,
-              depth: Math.floor(Math.random() * 7) * 5 + 20,
-            },
-            position: {
-              // random position between 0 and 50
-              x: Math.floor(Math.random() * 51),
-              y: Math.floor(Math.random() * 51),
-              z: -Math.floor(Math.random() * 51), // negative z for depth
-            },
-          };
+          const newItemData = generateRandomItemData();
           createNewItem(newItemData);
         },
       },
@@ -262,6 +245,10 @@ export function setupControls({ items, createItem, container, onDatasetChange })
   return {
     updateIntersections,
     updateItemProperties,
-    initializeItemControls,
+    initializeItemControls: items => {
+      items.forEach(item => setupItemControls(item));
+      settings.allItemsVisible = true;
+      toggleAllControl.updateDisplay();
+    },
   };
 }

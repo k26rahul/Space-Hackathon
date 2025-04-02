@@ -61,14 +61,13 @@ scene.add(container.mesh);
 const axesHelper = new THREE.AxesHelper(150);
 scene.add(axesHelper);
 
-const step = 1;
-const items = [];
-let itemCounter = 1; // Add counter for auto-incrementing names
+const items = []; // array to hold all <Item> objects
+let itemCounter = 1; // counter for auto-incrementing names
 
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
+const raycaster = new THREE.Raycaster(); // raycaster for mouse picking
+const mouse = new THREE.Vector2(); // mouse position in normalized device coordinates (-1 to +1)
 
-// Add mouse move event listener
+// Listen for hover events on the canvas
 window.addEventListener('mousemove', onMouseMove);
 
 function onMouseMove(event) {
@@ -97,11 +96,11 @@ function onMouseMove(event) {
   }
 }
 
-// Create and add item to container
+// Create an <Item> object and add it to the container
 function createItem(data, enableTransformControl = true) {
   const item = new Item(`Item ${itemCounter++}`, data.size, data.position);
-  container.addItem(item);
-  item.setContainer(container);
+  container.addItem(item); // add item to container
+  item.setContainer(container); // set the container for the item
   items.push(item);
   if (enableTransformControl) {
     const control = item.setupTransformControl(orthographicCamera, renderer, controls);
@@ -113,8 +112,8 @@ function createItem(data, enableTransformControl = true) {
 // Cleanup items
 function cleanupItems() {
   container.removeAllItems();
-  items.length = 0;
-  itemCounter = 1;
+  items.length = 0; // clear the array
+  itemCounter = 1; // reset counter
 }
 
 let guiControls;

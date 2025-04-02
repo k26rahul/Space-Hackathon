@@ -31,3 +31,20 @@ export function exportDataset(items) {
   const jsonString = JSON.stringify({ items: itemsData });
   copyToClipboard(jsonString);
 }
+
+export function generateRandomItemData() {
+  return {
+    size: {
+      // random size between 20 and 50
+      width: Math.floor(Math.random() * 7) * 5 + 20,
+      height: Math.floor(Math.random() * 7) * 5 + 20,
+      depth: Math.floor(Math.random() * 7) * 5 + 20,
+    },
+    position: {
+      // random position between 0 and 50
+      x: Math.floor(Math.random() * 51),
+      y: Math.floor(Math.random() * 51),
+      z: -Math.floor(Math.random() * 51), // negative z for depth
+    },
+  };
+}
