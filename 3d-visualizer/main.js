@@ -7,7 +7,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { Item } from './components/Item.js';
 import { Container } from './components/Container.js';
 
-import { itemsData } from './data/items.js';
+import { dataLoaded } from './data/data.js';
 import { setupControls } from './gui/gui.js';
 
 const canvasContainer = document.getElementById('canvas-container');
@@ -130,8 +130,8 @@ function setupItemControls(item) {
 }
 
 // Initialize items from data
-itemsData.then(data => {
-  data.forEach(item => createItem(item, false));
+dataLoaded.then(data => {
+  data.items.forEach(item => createItem(item, false));
 
   const guiControls = setupControls({
     container,
