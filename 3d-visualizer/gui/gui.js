@@ -1,6 +1,7 @@
 import { GUI } from 'lil-gui';
 import { GuiTextDisplay } from './GuiTextDisplay.js';
 import { copyToClipboard } from '../utils.js';
+import { TOTAL_SETS, DEFAULT_SET, getStoredDataset, setStoredDataset } from '../data/data.js';
 
 const gui = new GUI({ closed: true });
 
@@ -24,7 +25,32 @@ function exportItemsData(items) {
   copyToClipboard(jsonString);
 }
 
-export function setupControls({ items, createItem, container }) {
+export function setupControls({ items, createItem, container, onDatasetChange }) {
+  const datasetConfig = { currentSet: getStoredDataset() };
+
+  // Add Dataset selector at the top
+  gui
+    .add(
+      datasetConfig,
+      'currentSet',
+      Array.from({ length: TOTAL_SETS }, (_, i) => i)
+    )
+    .name('Dataset')
+    .onChange(value => {
+      setStoredDataset(value);
+      onDatasetChange(value);
+    });
+
+  // Add Reload button
+  gui
+    .add(
+      {
+        reload: () => onDatasetChange(datasetConfig.currentSet),
+      },
+      'reload'
+    )
+    .name('Reload Dataset');
+
   // each { item, sizeControllers: [{dim, ctrl}], posControllers: [{axis, ctrl}] }
   // dim: 'width', 'height', 'depth'
   // axis: 'x', 'y', 'z'

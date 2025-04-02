@@ -7,7 +7,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { Item } from './components/Item.js';
 import { Container } from './components/Container.js';
 
-import { dataLoaded } from './data/data.js';
+import { loadDataset, getStoredDataset } from './data/data.js';
 import { setupControls } from './gui/gui.js';
 
 const canvasContainer = document.getElementById('canvas-container');
@@ -130,14 +130,27 @@ function setupItemControls(item) {
   scene.add(control);
 }
 
+// Cleanup items
+function cleanupItems() {
+  container.removeAllItems();
+  items.length = 0;
+  itemCounter = 1;
+}
+
 // Initialize items from data
-dataLoaded.then(data => {
+loadDataset(getStoredDataset()).then(data => {
   data.items.forEach(item => createItem(item, false));
 
   const guiControls = setupControls({
     items,
     createItem,
     container,
+    onDatasetChange: setNumber => {
+      cleanupItems();
+      loadDataset(setNumber).then(newData => {
+        newData.items.forEach(item => createItem(item, false));
+      });
+    },
   });
 
   function animate() {

@@ -59,6 +59,23 @@ export class Container {
     this.mesh.add(item.mesh); // Add item mesh to the container mesh
   }
 
+  removeAllItems() {
+    this.items.forEach(item => {
+      // Remove label element from DOM
+      if (item.label && item.label.element && item.label.element.parentNode) {
+        item.label.element.parentNode.removeChild(item.label.element);
+      }
+      // Remove item mesh from container
+      this.mesh.remove(item.mesh);
+      // Dispose geometries and materials
+      item.mesh.children.forEach(child => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) child.material.dispose();
+      });
+    });
+    this.items = [];
+  }
+
   checkIntersections() {
     // Reset intersecting flag and intersections list for all items
     this.items.forEach(item => {
