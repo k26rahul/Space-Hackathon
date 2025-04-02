@@ -1,8 +1,8 @@
-import { GUI } from 'dat.gui';
+import { GUI } from 'lil-gui';
 import { GuiTextDisplay } from './GuiTextDisplay.js';
 import { copyToClipboard } from '../utils.js';
 
-const gui = new GUI();
+const gui = new GUI({ closed: true });
 
 export const settings = {
   showLabelOnIntersection: true,
@@ -45,9 +45,11 @@ export function setupControls({ items, createItem }) {
 
   // Items
   const itemsControlFolder = gui.addFolder('Items');
+  itemsControlFolder.close();
 
   function setupItemControls(item) {
     const itemFolder = itemsControlFolder.addFolder(item.name);
+    itemFolder.close();
 
     // Add Clone button as first control
     itemFolder
@@ -70,7 +72,7 @@ export function setupControls({ items, createItem }) {
 
     // Items Size
     const sizeFolder = itemFolder.addFolder('Size');
-    sizeFolder.open();
+    sizeFolder.open(); // Keep size folder open
 
     Object.keys(item.size).forEach(dim => {
       const { min, max } = item.getSizeRange(dim);
@@ -83,7 +85,7 @@ export function setupControls({ items, createItem }) {
 
     // Items Position
     const posFolder = itemFolder.addFolder('Position');
-    posFolder.open();
+    posFolder.open(); // Keep position folder open
 
     Object.keys(item.position).forEach(axis => {
       const { min, max } = item.getPositionRange(axis);
@@ -129,10 +131,14 @@ export function setupControls({ items, createItem }) {
 
   // Intersections
   const intersectionsFolder = gui.addFolder('Intersections');
+  intersectionsFolder.close();
+
   const intersectionsDisplay = new GuiTextDisplay(intersectionsFolder);
 
   // Item Properties
   const itemPropertiesFolder = gui.addFolder('Item Properties');
+  itemPropertiesFolder.close();
+
   const propertiesDisplay = new GuiTextDisplay(itemPropertiesFolder);
 
   // Add Export button to Item Properties folder
