@@ -6,7 +6,7 @@ import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { Item } from './components/Item.js';
 import { Container } from './components/Container.js';
 
-import { loadDataset, getStoredDatasetIndex } from './data/data.js';
+import { loadDataset, getStoredSetNumber } from './data/data.js';
 import { setupControls } from './gui/gui.js';
 
 const canvasContainer = document.getElementById('canvas-container');
@@ -126,7 +126,7 @@ function initializeItems(data) {
 }
 
 // Initialize with default dataset and setup controls
-loadDataset(getStoredDatasetIndex()).then(data => {
+loadDataset(getStoredSetNumber()).then(data => {
   guiControls = setupControls({
     items,
     createItem,

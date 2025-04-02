@@ -2,15 +2,15 @@ import { copyToClipboard } from '../utils.js';
 
 export const TOTAL_SETS = 6;
 export const DEFAULT_SET = 2;
-export const STORAGE_KEY = 'selectedDatasetIndex';
+export const STORAGE_KEY = 'selectedSetNumber';
 
-export function getStoredDatasetIndex() {
+export function getStoredSetNumber() {
   const stored = localStorage.getItem(STORAGE_KEY);
-  return stored ? parseInt(stored) : DEFAULT_SET; // fallback to DEFAULT_SET if not found
+  return stored ? parseInt(stored) : DEFAULT_SET;
 }
 
-export function setStoredDatasetIndex(datasetIndex) {
-  localStorage.setItem(STORAGE_KEY, datasetIndex.toString());
+export function setStoredSetNumber(setNumber) {
+  localStorage.setItem(STORAGE_KEY, setNumber.toString());
 }
 
 export function loadDataset(setNumber) {

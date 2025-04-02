@@ -1,16 +1,12 @@
 import { GUI } from 'lil-gui';
 import { GuiTextDisplay } from './GuiTextDisplay.js';
-import {
-  TOTAL_SETS,
-  getStoredDatasetIndex,
-  setStoredDatasetIndex,
-  exportDataset,
-} from '../data/data.js';
+import { TOTAL_SETS, getStoredSetNumber, setStoredSetNumber, exportDataset } from '../data/data.js';
 
 const gui = new GUI();
 
 export const settings = {
   showLabelOnIntersection: true,
+  currentSetNumber: getStoredSetNumber(),
 };
 
 gui.add(settings, 'showLabelOnIntersection').name('Show Label on Intersection');
@@ -20,19 +16,17 @@ const ITEM_SIZE_STEP = 5;
 const ITEM_POSITION_STEP = 5;
 
 export function setupControls({ items, createItem, container, onDatasetChange }) {
-  const datasetConfig = { currentSet: getStoredDatasetIndex() };
-
-  function loadDataset(datasetIndex) {
-    setStoredDatasetIndex(datasetIndex);
+  function loadDataset(setNumber) {
+    setStoredSetNumber(setNumber);
     cleanupItemControls();
-    onDatasetChange(datasetIndex);
+    onDatasetChange(setNumber);
   }
 
   // Add Dataset selector at the top
   gui
     .add(
-      datasetConfig,
-      'currentSet',
+      settings,
+      'currentSetNumber',
       Array.from({ length: TOTAL_SETS }, (_, i) => i)
     )
     .name('Dataset')
@@ -42,7 +36,7 @@ export function setupControls({ items, createItem, container, onDatasetChange })
   gui
     .add(
       {
-        reload: () => loadDataset(datasetConfig.currentSet),
+        reload: () => loadDataset(settings.currentSetNumber),
       },
       'reload'
     )
