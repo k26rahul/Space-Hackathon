@@ -61,7 +61,6 @@ export class Item {
     const labelDiv = document.createElement('div');
     labelDiv.className = 'label';
     this.updateLabelText(labelDiv);
-    labelDiv.style.whiteSpace = 'pre'; // Preserve line breaks
     const label = new CSS2DObject(labelDiv);
     label.position.set(0, this.size.height / 2 + 5, 0);
     label.visible = false; // Initially hide the label
