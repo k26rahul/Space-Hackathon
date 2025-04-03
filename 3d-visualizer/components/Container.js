@@ -9,6 +9,9 @@ export class Container {
     this.items = []; // Array to hold items in the container
     this.mesh = this.createContainerMesh();
     this.updatePosition();
+
+    this.raycaster = new THREE.Raycaster();
+    this.mouse = new THREE.Vector2();
   }
 
   createContainerMesh() {
@@ -134,5 +137,34 @@ export class Container {
     const dimension = axisToDimension[axis];
     const val = this.size[dimension];
     return { min: -val, max: val };
+  }
+
+  setupMousePicking(camera, renderer) {
+    window.addEventListener('mousemove', event => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      this.raycaster.setFromCamera(this.mouse, camera);
+
+      // Reset hover state for all items
+      this.items.forEach(item => {
+        item.hovered = false;
+      });
+
+      // Find intersected objects
+      const allIntersects = this.raycaster.intersectObjects(this.mesh.children, true);
+
+      // Get all items that are intersected
+      for (const intersect of allIntersects) {
+        const item = this.items.find(item =>
+          item.mesh.children.some(child => child === intersect.object)
+        );
+        if (item && item.visible) {
+          item.hovered = true;
+          break;
+        }
+      }
+    });
   }
 }

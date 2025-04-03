@@ -57,44 +57,13 @@ const container = new Container({
   position: { x: 50, y: 90, z: 30 },
 });
 scene.add(container.mesh);
+container.setupMousePicking(orthographicCamera, renderer);
 
 const axesHelper = new THREE.AxesHelper(150);
 scene.add(axesHelper);
 
 const items = []; // array to hold all <Item> objects
 let itemCounter = 1; // counter for auto-incrementing names
-
-const raycaster = new THREE.Raycaster(); // raycaster for mouse picking
-const mouse = new THREE.Vector2(); // mouse position in normalized device coordinates (-1 to +1)
-
-// Listen for hover events on the canvas
-window.addEventListener('mousemove', onMouseMove);
-
-function onMouseMove(event) {
-  const rect = renderer.domElement.getBoundingClientRect();
-  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, orthographicCamera);
-
-  // Reset hover state for all items
-  items.forEach(item => {
-    item.hovered = false;
-  });
-
-  // Find intersected objects, including those behind the container
-  const allIntersects = raycaster.intersectObjects(scene.children, true);
-
-  // Get all items that are intersected, not just the first one
-  for (const intersect of allIntersects) {
-    const item = items.find(item => item.mesh.children.some(child => child === intersect.object));
-    if (item && item.visible) {
-      // Only break if the item is visible
-      item.hovered = true;
-      break;
-    }
-  }
-}
 
 // Create an <Item> object and add it to the container
 function createItem(data, enableTransformControl = true) {
