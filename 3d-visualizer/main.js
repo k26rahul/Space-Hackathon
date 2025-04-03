@@ -18,9 +18,7 @@ canvasContainer.appendChild(renderer.domElement);
 
 const labelRenderer = new CSS2DRenderer();
 labelRenderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
-labelRenderer.domElement.style.position = 'absolute';
-labelRenderer.domElement.style.top = '0px';
-labelRenderer.domElement.style.pointerEvents = 'none';
+labelRenderer.domElement.classList.add('css2d-renderer');
 canvasContainer.appendChild(labelRenderer.domElement);
 
 const scene = new THREE.Scene();
