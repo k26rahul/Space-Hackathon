@@ -54,7 +54,7 @@ scene.add(ambientLight);
 
 const container = new Container({
   size: { width: 100, height: 100, depth: 100 },
-  position: { x: 0, y: 0, z: 0 },
+  position: { x: 50, y: 90, z: 30 },
 });
 scene.add(container.mesh);
 

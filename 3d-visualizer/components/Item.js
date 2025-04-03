@@ -182,11 +182,13 @@ export class Item {
 
     control.addEventListener('objectChange', () => {
       if (control.mode === 'translate') {
-        const STEP = 1;
+        const STEP = 1; // Step size for snapping
         this.mesh.position.x = Math.round(this.mesh.position.x / STEP) * STEP;
         this.mesh.position.y = Math.round(this.mesh.position.y / STEP) * STEP;
         this.mesh.position.z = Math.round(this.mesh.position.z / STEP) * STEP;
       }
+
+      // Update the item's position based on the mesh's new position
       this.updatePositionFromMesh();
     });
 
