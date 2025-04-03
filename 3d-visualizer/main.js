@@ -79,7 +79,7 @@ function onMouseMove(event) {
 
   // Reset hover state for all items
   items.forEach(item => {
-    item.isHovered = false;
+    item.hovered = false;
   });
 
   // Find intersected objects, including those behind the container
@@ -90,7 +90,7 @@ function onMouseMove(event) {
     const item = items.find(item => item.mesh.children.some(child => child === intersect.object));
     if (item && item.visible) {
       // Only break if the item is visible
-      item.isHovered = true;
+      item.hovered = true;
       break;
     }
   }

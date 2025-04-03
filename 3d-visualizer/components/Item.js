@@ -1,11 +1,12 @@
 import * as THREE from 'three';
+
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+
 import { ColorProvider } from '../utils.js';
-import { settings } from '../gui/gui.js'; // added import
+import { settings } from '../gui/gui.js';
 
 const colorProvider = new ColorProvider();
-const STEP = 1;
 
 export class Item {
   constructor(name, size, position) {
@@ -13,17 +14,16 @@ export class Item {
     this.size = size;
     this.position = position;
     this.color = colorProvider.getNextColor();
-    this.visible = true; // Add visibility property
+    this.container = null;
 
     this.mesh = this.createItemMesh();
     this.label = this.createLabel();
-    if (this.label) {
-      this.mesh.add(this.label);
-      this.label.visible = false; // Initially hide label
-    }
+    this.mesh.add(this.label);
 
-    this.container = null;
-    this.intersecting = false; // flag to indicate intersection with other items
+    this.visible = true;
+    this.hovered = false;
+    this.intersecting = false;
+    this.intersections = [];
   }
 
   setContainer(container) {
@@ -64,6 +64,7 @@ export class Item {
     labelDiv.style.whiteSpace = 'pre'; // Preserve line breaks
     const label = new CSS2DObject(labelDiv);
     label.position.set(0, this.size.height / 2 + 5, 0);
+    label.visible = false; // Initially hide the label
     return label;
   }
 
@@ -130,7 +131,7 @@ export class Item {
       } else {
         this.label.element.classList.remove('flashing'); // remove flashing animation
       }
-      if (this.isHovered) {
+      if (this.hovered) {
         // always show label when hovered
         showLabel = true;
       }
@@ -139,7 +140,7 @@ export class Item {
     }
     this.label.visible = showLabel;
 
-    if (this.isHovered) {
+    if (this.hovered) {
       // Update solid mesh opacity
       this.mesh.children[0].material.opacity = 1.0;
       // Update wireframe opacity
@@ -173,6 +174,7 @@ export class Item {
 
     control.addEventListener('objectChange', () => {
       if (control.mode === 'translate') {
+        const STEP = 1;
         this.mesh.position.x = Math.round(this.mesh.position.x / STEP) * STEP;
         this.mesh.position.y = Math.round(this.mesh.position.y / STEP) * STEP;
         this.mesh.position.z = Math.round(this.mesh.position.z / STEP) * STEP;
