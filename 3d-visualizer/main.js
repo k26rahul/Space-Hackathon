@@ -43,24 +43,22 @@ controls.dampingFactor = 0.05;
 // controls.autoRotate = true;
 // controls.autoRotateSpeed = 1;
 
-{
-  orthographicCamera.position.set(100, 100, 150);
-  orthographicCamera.zoom = 0.9;
-  controls.target.set(50, 50, 0);
-}
+orthographicCamera.position.set(100, 100, 150);
+orthographicCamera.zoom = 0.9;
+controls.target.set(50, 50, 0);
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
 scene.add(ambientLight);
 
+const axesHelper = new THREE.AxesHelper(150);
+scene.add(axesHelper);
+
 const container = new Container({
   size: { width: 100, height: 100, depth: 100 },
-  position: { x: 50, y: 90, z: 30 },
+  position: { x: 0, y: 0, z: 0 },
 });
 scene.add(container.mesh);
 container.setupMousePicking(orthographicCamera, renderer);
-
-const axesHelper = new THREE.AxesHelper(150);
-scene.add(axesHelper);
 
 const items = []; // array to hold all <Item> objects
 let itemCounter = 1; // counter for auto-incrementing names
