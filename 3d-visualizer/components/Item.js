@@ -194,4 +194,17 @@ export class Item {
 
     return control;
   }
+
+  destroy() {
+    // Remove label element from DOM
+    if (this.label && this.label.element && this.label.element.parentNode) {
+      this.label.element.parentNode.removeChild(this.label.element);
+    }
+
+    // Dispose geometries and materials
+    this.mesh.children.forEach(child => {
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) child.material.dispose();
+    });
+  }
 }

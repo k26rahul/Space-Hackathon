@@ -3,15 +3,12 @@ import { axisToDimension } from '../utils.js';
 
 export class Container {
   constructor({ size, position }) {
-    this.size = size; // Object with width, height, and depth properties
-    this.position = position; // Object with x, y, and z properties
+    this.size = size; // { width, height, depth }
+    this.position = position; // {x, y, z}
 
-    this.items = []; // Array to hold items in the container
+    this.items = []; // [<Item> ...]
     this.mesh = this.createContainerMesh();
     this.updatePosition();
-
-    this.raycaster = new THREE.Raycaster();
-    this.mouse = new THREE.Vector2();
   }
 
   createContainerMesh() {
@@ -64,17 +61,8 @@ export class Container {
 
   removeAllItems() {
     this.items.forEach(item => {
-      // Remove label element from DOM
-      if (item.label && item.label.element && item.label.element.parentNode) {
-        item.label.element.parentNode.removeChild(item.label.element);
-      }
-      // Remove item mesh from container
+      item.destroy();
       this.mesh.remove(item.mesh);
-      // Dispose geometries and materials
-      item.mesh.children.forEach(child => {
-        if (child.geometry) child.geometry.dispose();
-        if (child.material) child.material.dispose();
-      });
     });
     this.items = [];
   }
@@ -140,12 +128,15 @@ export class Container {
   }
 
   setupMousePicking(camera, renderer) {
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
     window.addEventListener('mousemove', event => {
       const rect = renderer.domElement.getBoundingClientRect();
-      this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-      this.raycaster.setFromCamera(this.mouse, camera);
+      raycaster.setFromCamera(mouse, camera);
 
       // Reset hover state for all items
       this.items.forEach(item => {
@@ -153,7 +144,7 @@ export class Container {
       });
 
       // Find intersected objects
-      const allIntersects = this.raycaster.intersectObjects(this.mesh.children, true);
+      const allIntersects = raycaster.intersectObjects(this.mesh.children, true);
 
       // Get all items that are intersected
       for (const intersect of allIntersects) {

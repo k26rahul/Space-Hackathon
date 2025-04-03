@@ -58,14 +58,14 @@ const container = new Container({
 scene.add(container.mesh);
 container.setupMousePicking(orthographicCamera, renderer);
 
-const items = []; // array to hold all <Item> objects
-let itemCounter = 1; // counter for auto-incrementing names
+const items = []; // [<Item> ...]
+let itemCounter = 1; // auto-incrementing names
 
-// Create an <Item> object and add it to the container
+// Create an <Item>
 function createItem(data, enableTransformControl = true) {
   const item = new Item(`Item ${itemCounter++}`, data.size, data.position);
-  container.addItem(item); // add item to container
-  item.setContainer(container); // set the container for the item
+  container.addItem(item);
+  item.setContainer(container);
   items.push(item);
   if (enableTransformControl) {
     const control = item.setupTransformControl(orthographicCamera, renderer, controls);
@@ -77,8 +77,8 @@ function createItem(data, enableTransformControl = true) {
 // Cleanup items
 function cleanupItems() {
   container.removeAllItems();
-  items.length = 0; // clear the array
-  itemCounter = 1; // reset counter
+  items.length = 0;
+  itemCounter = 1;
 }
 
 let guiControls;
