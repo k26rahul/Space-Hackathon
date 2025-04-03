@@ -76,6 +76,7 @@ export class Item {
   updatePosition() {
     const { width, height, depth } = this.size;
     const { x, y, z } = this.position;
+
     const containerSize = this.container.size;
     const offsetX = containerSize.width / 2;
     const offsetY = containerSize.height / 2;
@@ -119,8 +120,12 @@ export class Item {
   }
 
   updateVisual() {
-    this.mesh.visible = this.visible; // Update mesh visibility
+    this.mesh.visible = this.visible;
+    this.updateLabelVisibility();
+    this.updateMeshOpacity();
+  }
 
+  updateLabelVisibility() {
     let showLabel = false;
     if (this.visible) {
       // Only show label if item is visible
@@ -130,15 +135,19 @@ export class Item {
       } else {
         this.label.element.classList.remove('flashing'); // remove flashing animation
       }
+
       if (this.hovered) {
-        // always show label when hovered
+        // Always show label when hovered
         showLabel = true;
       }
+
       // Update label text when visible
       this.updateLabelText(this.label.element);
     }
     this.label.visible = showLabel;
+  }
 
+  updateMeshOpacity() {
     if (this.hovered) {
       // Update solid mesh opacity
       this.mesh.children[0].material.opacity = 1.0;
