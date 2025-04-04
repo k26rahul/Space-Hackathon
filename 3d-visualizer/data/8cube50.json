@@ -1,0 +1,100 @@
+{
+  "items": [
+    {
+      "size": {
+        "width": 50,
+        "height": 50,
+        "depth": 50
+      },
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "size": {
+        "width": 50,
+        "height": 50,
+        "depth": 50
+      },
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": -50
+      }
+    },
+    {
+      "size": {
+        "width": 50,
+        "height": 50,
+        "depth": 50
+      },
+      "position": {
+        "x": 0,
+        "y": 50,
+        "z": 0
+      }
+    },
+    {
+      "size": {
+        "width": 50,
+        "height": 50,
+        "depth": 50
+      },
+      "position": {
+        "x": 0,
+        "y": 50,
+        "z": -50
+      }
+    },
+    {
+      "size": {
+        "width": 50,
+        "height": 50,
+        "depth": 50
+      },
+      "position": {
+        "x": 50,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "size": {
+        "width": 50,
+        "height": 50,
+        "depth": 50
+      },
+      "position": {
+        "x": 50,
+        "y": 0,
+        "z": -50
+      }
+    },
+    {
+      "size": {
+        "width": 50,
+        "height": 50,
+        "depth": 50
+      },
+      "position": {
+        "x": 50,
+        "y": 50,
+        "z": 0
+      }
+    },
+    {
+      "size": {
+        "width": 50,
+        "height": 50,
+        "depth": 50
+      },
+      "position": {
+        "x": 50,
+        "y": 50,
+        "z": -50
+      }
+    }
+  ]
+}

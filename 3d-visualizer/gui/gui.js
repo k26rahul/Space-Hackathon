@@ -1,9 +1,9 @@
 import { GUI } from 'lil-gui';
 import { GuiTextDisplay } from './GuiTextDisplay.js';
 import {
-  TOTAL_SETS,
-  getStoredSetNumber,
-  setStoredSetNumber,
+  DATASETS,
+  getStoredDataset,
+  setStoredDataset,
   exportDataset,
   generateRandomItemData,
 } from '../data/data.js';
@@ -13,7 +13,7 @@ const gui = new GUI();
 
 export const settings = {
   showLabelOnIntersection: true,
-  currentSetNumber: getStoredSetNumber(),
+  currentDataset: getStoredDataset(),
   allItemsVisible: true,
 };
 
@@ -24,15 +24,15 @@ const ITEM_SIZE_STEP = 5;
 const ITEM_POSITION_STEP = 5;
 
 export function setupControls({ items, createItem, container, onDatasetChange }) {
-  function loadDataset(setNumber) {
+  function loadDataset(dataset) {
     cleanupItemControls();
-    onDatasetChange(setNumber);
-    setStoredSetNumber(setNumber);
+    onDatasetChange(dataset);
+    setStoredDataset(dataset);
   }
 
   // Add Dataset selector
   gui
-    .add(settings, 'currentSetNumber', createSequentialArray(TOTAL_SETS))
+    .add(settings, 'currentDataset', DATASETS)
     .name('Dataset')
     .onChange(value => loadDataset(value));
 
@@ -40,7 +40,7 @@ export function setupControls({ items, createItem, container, onDatasetChange })
   gui
     .add(
       {
-        reload: () => loadDataset(settings.currentSetNumber),
+        reload: () => loadDataset(settings.currentDataset),
       },
       'reload'
     )

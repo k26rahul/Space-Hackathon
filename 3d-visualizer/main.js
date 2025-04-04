@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
@@ -6,10 +7,13 @@ import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { Item } from './components/Item.js';
 import { Container } from './components/Container.js';
 
-import { loadDataset, getStoredSetNumber } from './data/data.js';
+import { loadDataset, getStoredDataset } from './data/data.js';
 import { setupControls } from './gui/gui.js';
 
 const canvasContainer = document.getElementById('canvas-container');
+
+const stats = new Stats();
+document.body.appendChild(stats.dom);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
@@ -90,14 +94,14 @@ function initializeItems(data) {
 }
 
 // Initialize with default dataset and setup controls
-loadDataset(getStoredSetNumber()).then(data => {
+loadDataset(getStoredDataset()).then(data => {
   guiControls = setupControls({
     items,
     createItem,
     container,
-    onDatasetChange: setNumber => {
+    onDatasetChange: dataset => {
       cleanupItems();
-      loadDataset(setNumber).then(newData => {
+      loadDataset(dataset).then(newData => {
         initializeItems(newData);
       });
     },
@@ -107,15 +111,19 @@ loadDataset(getStoredSetNumber()).then(data => {
 
   function animate() {
     requestAnimationFrame(animate);
+    stats.begin();
+
     controls.update();
 
-    container.checkIntersections(); // check for intersections
-    items.forEach(item => item.updateVisual()); // flashing on intersection
-    guiControls.updateIntersections(); // update GUI intersections display
-    guiControls.updateItemProperties(); // update GUI item properties display
+    // container.checkIntersections(); // check for intersections
+    // items.forEach(item => item.updateVisual()); // flashing on intersection
+    // guiControls.updateIntersections(); // update GUI intersections display
+    // guiControls.updateItemProperties(); // update GUI item properties display
 
     renderer.render(scene, orthographicCamera);
-    labelRenderer.render(scene, orthographicCamera);
+    // labelRenderer.render(scene, orthographicCamera);
+
+    stats.end();
   }
   animate();
 });
