@@ -3,9 +3,10 @@ import { axisToDimension } from '../utils.js';
 import { Item } from './Item.js'; // Add this import at the top
 
 export class Container {
-  constructor({ size, position }) {
+  constructor({ size, position, id }) {
     this.size = size; // { width, height, depth }
     this.position = position; // {x, y, z}
+    this.id = id;
 
     this.items = []; // [<Item> ...]
     this.mesh = this.createContainerMesh();

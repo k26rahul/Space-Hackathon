@@ -58,6 +58,7 @@ scene.add(axesHelper);
 const container = new Container({
   size: { width: 100, height: 100, depth: 100 },
   position: { x: 0, y: 0, z: 0 },
+  id: 'CONTAINER_001',
 });
 scene.add(container.mesh);
 container.setupMousePicking(orthographicCamera, renderer);

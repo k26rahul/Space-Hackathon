@@ -11,10 +11,10 @@ const colorProvider = new ColorProvider();
 export class Item {
   static #counter = 1;
 
-  constructor(data) {
-    this.name = data.id ? `Item ${data.id}` : `Item ${Item.#counter++}`;
-    this.size = data.size;
-    this.position = data.position;
+  constructor({ size, position, id }) {
+    this.name = id ? `Item ${id}` : `Item ${Item.#counter++}`;
+    this.size = size;
+    this.position = position;
     this.color = colorProvider.getNextColor();
     this.container = null;
 
