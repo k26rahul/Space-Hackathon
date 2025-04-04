@@ -9,6 +9,7 @@ export class Container {
     this.items = []; // [<Item> ...]
     this.mesh = this.createContainerMesh();
     this.updatePosition();
+    this.sandboxMode = false;
   }
 
   createContainerMesh() {
@@ -68,6 +69,8 @@ export class Container {
   }
 
   checkIntersections() {
+    if (!this.sandboxMode) return; // Skip expensive checks if not in sandbox mode
+
     // Reset intersecting flag and intersections list for all items
     this.items.forEach(item => {
       item.intersecting = false;
@@ -119,6 +122,9 @@ export class Container {
         item.intersections.push('container');
       }
     });
+
+    // Update visuals for all items
+    this.items.forEach(item => item.updateVisual());
   }
 
   getPositionRange(axis) {

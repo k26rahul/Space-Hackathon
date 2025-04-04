@@ -7,7 +7,6 @@ import {
   exportDataset,
   generateRandomItemData,
 } from '../data/data.js';
-import { createSequentialArray } from '../utils.js';
 
 const gui = new GUI();
 

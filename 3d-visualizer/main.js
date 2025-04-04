@@ -62,41 +62,31 @@ const container = new Container({
 scene.add(container.mesh);
 container.setupMousePicking(orthographicCamera, renderer);
 
-const items = []; // [<Item> ...]
-let itemCounter = 1; // auto-incrementing names
-
 // Create an <Item>
-function createItem(data, enableTransformControl = true) {
-  const item = new Item(`Item ${itemCounter++}`, data.size, data.position);
+function createItem(data) {
+  const item = new Item(data);
   container.addItem(item);
   item.setContainer(container);
-  items.push(item);
-  if (enableTransformControl) {
-    const control = item.setupTransformControl(orthographicCamera, renderer, controls);
-    scene.add(control);
-  }
   return item;
 }
 
 // Cleanup items
 function cleanupItems() {
   container.removeAllItems();
-  items.length = 0;
-  itemCounter = 1;
 }
 
 let guiControls;
 
 // Initialize items from dataset
 function initializeItems(data) {
-  data.items.forEach(item => createItem(item, false));
-  guiControls.initializeItemControls(items);
+  data.items.forEach(item => createItem(item));
+  guiControls.initializeItemControls(container.items);
 }
 
 // Initialize with default dataset and setup controls
 loadDataset(getStoredDataset()).then(data => {
   guiControls = setupControls({
-    items,
+    items: container.items,
     createItem,
     container,
     onDatasetChange: dataset => {
@@ -115,10 +105,11 @@ loadDataset(getStoredDataset()).then(data => {
 
     controls.update();
 
-    container.checkIntersections(); // check for intersections
-    items.forEach(item => item.updateVisual()); // flashing on intersection
-    guiControls.updateIntersections(); // update GUI intersections display
-    guiControls.updateItemProperties(); // update GUI item properties display
+    if (container.sandboxMode) {
+      container.checkIntersections(); // check for intersections
+      guiControls.updateIntersections(); // update GUI intersections display
+      guiControls.updateItemProperties(); // update GUI item properties display
+    }
 
     renderer.render(scene, orthographicCamera);
     labelRenderer.render(scene, orthographicCamera);

@@ -9,10 +9,12 @@ import { settings } from '../gui/gui.js';
 const colorProvider = new ColorProvider();
 
 export class Item {
-  constructor(name, size, position) {
-    this.name = name;
-    this.size = size;
-    this.position = position;
+  static #counter = 1;
+
+  constructor(data) {
+    this.name = data.id ? `Item ${data.id}` : `Item ${Item.#counter++}`;
+    this.size = data.size;
+    this.position = data.position;
     this.color = colorProvider.getNextColor();
     this.container = null;
 
@@ -168,9 +170,10 @@ export class Item {
     return { min: 5, max: this.container.size[dim] };
   }
 
-  setupTransformControl(camera, renderer, orbitControls) {
+  setupTransformControl(camera, renderer, orbitControls, scene) {
     const control = new TransformControls(camera, renderer.domElement);
     control.attach(this.mesh);
+    scene.add(control);
 
     control.addEventListener('dragging-changed', event => {
       orbitControls.enabled = !event.value;
