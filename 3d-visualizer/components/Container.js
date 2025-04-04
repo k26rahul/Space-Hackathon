@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { axisToDimension } from '../utils.js';
+import { Item } from './Item.js'; // Add this import at the top
 
 export class Container {
   constructor({ size, position }) {
@@ -55,12 +56,15 @@ export class Container {
     );
   }
 
-  addItem(item) {
-    this.items.push(item); // Add item to the container's items array
-    this.mesh.add(item.mesh); // Add item mesh to the container mesh
+  addItem(itemData) {
+    const item = new Item(itemData);
+    this.items.push(item);
+    this.mesh.add(item.mesh);
+    item.setContainer(this);
+    return item;
   }
 
-  removeAllItems() {
+  cleanupItems() {
     this.items.forEach(item => {
       item.destroy();
       this.mesh.remove(item.mesh);

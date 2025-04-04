@@ -22,7 +22,7 @@ gui.add(settings, 'showLabelOnIntersection').name('Show Label on Intersection');
 const ITEM_SIZE_STEP = 5;
 const ITEM_POSITION_STEP = 5;
 
-export function setupControls({ items, createItem, container, onDatasetChange }) {
+export function setupControls({ items, container, onDatasetChange }) {
   function loadDataset(dataset) {
     cleanupItemControls();
     onDatasetChange(dataset);
@@ -188,7 +188,7 @@ export function setupControls({ items, createItem, container, onDatasetChange })
   }
 
   function createNewItem(itemData) {
-    const newItem = createItem(itemData);
+    const newItem = container.addItem(itemData);
     setupItemControls(newItem);
     return newItem;
   }

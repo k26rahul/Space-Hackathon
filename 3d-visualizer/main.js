@@ -62,24 +62,11 @@ const container = new Container({
 scene.add(container.mesh);
 container.setupMousePicking(orthographicCamera, renderer);
 
-// Create an <Item>
-function createItem(data) {
-  const item = new Item(data);
-  container.addItem(item);
-  item.setContainer(container);
-  return item;
-}
-
-// Cleanup items
-function cleanupItems() {
-  container.removeAllItems();
-}
-
 let guiControls;
 
 // Initialize items from dataset
 function initializeItems(data) {
-  data.items.forEach(item => createItem(item));
+  data.items.forEach(item => container.addItem(item));
   guiControls.initializeItemControls(container.items);
 }
 
@@ -87,10 +74,9 @@ function initializeItems(data) {
 loadDataset(getStoredDataset()).then(data => {
   guiControls = setupControls({
     items: container.items,
-    createItem,
     container,
     onDatasetChange: dataset => {
-      cleanupItems();
+      container.cleanupItems();
       loadDataset(dataset).then(newData => {
         initializeItems(newData);
       });
