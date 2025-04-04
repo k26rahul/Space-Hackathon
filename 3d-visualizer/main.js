@@ -55,36 +55,40 @@ scene.add(ambientLight);
 const axesHelper = new THREE.AxesHelper(150);
 scene.add(axesHelper);
 
-const container = new Container({
-  size: { width: 100, height: 100, depth: 100 },
-  position: { x: 0, y: 0, z: 0 },
-  id: 'CONTAINER_001',
-});
-scene.add(container.mesh);
-container.setupMousePicking(orthographicCamera, renderer);
+function initializeContainers(data) {
+  const containers = data.containers.map(containerData => {
+    const ctr = new Container(containerData);
+    scene.add(ctr.mesh);
+    ctr.setupMousePicking(orthographicCamera, renderer);
+    return ctr;
+  });
+
+  data.items.forEach(itemData => {
+    const target = containers.find(c => c.id === itemData.container_id);
+    if (target) target.addItem(itemData);
+  });
+
+  return containers;
+}
 
 let guiControls;
 
-// Initialize items from dataset
-function initializeItems(data) {
-  data.items.forEach(item => container.addItem(item));
-  guiControls.initializeItemControls(container.items);
-}
-
 // Initialize with default dataset and setup controls
 loadDataset(getStoredDataset()).then(data => {
+  const containers = initializeContainers(data);
   guiControls = setupControls({
-    items: container.items,
-    container,
+    containers,
     onDatasetChange: dataset => {
-      container.cleanupItems();
+      containers.forEach(c => {
+        c.cleanupItems();
+        scene.remove(c.mesh);
+      });
       loadDataset(dataset).then(newData => {
-        initializeItems(newData);
+        const newContainers = initializeContainers(newData);
+        guiControls.switchContainers(newContainers);
       });
     },
   });
-
-  initializeItems(data);
 
   function animate() {
     requestAnimationFrame(animate);
@@ -92,11 +96,14 @@ loadDataset(getStoredDataset()).then(data => {
 
     controls.update();
 
-    if (container.sandboxMode) {
-      container.checkIntersections(); // check for intersections
-      guiControls.updateIntersections(); // update GUI intersections display
-      guiControls.updateItemProperties(); // update GUI item properties display
-    }
+    containers.forEach(c => {
+      if (c.sandboxMode) {
+        c.checkIntersections();
+      }
+    });
+
+    guiControls.updateIntersections();
+    guiControls.updateItemProperties();
 
     renderer.render(scene, orthographicCamera);
     labelRenderer.render(scene, orthographicCamera);
