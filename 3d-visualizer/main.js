@@ -115,13 +115,13 @@ loadDataset(getStoredDataset()).then(data => {
 
     controls.update();
 
-    // container.checkIntersections(); // check for intersections
-    // items.forEach(item => item.updateVisual()); // flashing on intersection
-    // guiControls.updateIntersections(); // update GUI intersections display
-    // guiControls.updateItemProperties(); // update GUI item properties display
+    container.checkIntersections(); // check for intersections
+    items.forEach(item => item.updateVisual()); // flashing on intersection
+    guiControls.updateIntersections(); // update GUI intersections display
+    guiControls.updateItemProperties(); // update GUI item properties display
 
     renderer.render(scene, orthographicCamera);
-    // labelRenderer.render(scene, orthographicCamera);
+    labelRenderer.render(scene, orthographicCamera);
 
     stats.end();
   }

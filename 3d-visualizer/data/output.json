@@ -10,7 +10,8 @@
         "x": 0.0,
         "y": 0.0,
         "z": 0.0
-      }
+      },
+      "container_id": "CONTAINER_001"
     },
     {
       "size": {
@@ -22,7 +23,8 @@
         "x": 60.0,
         "y": 0.0,
         "z": 0.0
-      }
+      },
+      "container_id": "CONTAINER_001"
     },
     {
       "size": {
@@ -34,7 +36,8 @@
         "x": 75.0,
         "y": 0.0,
         "z": 0.0
-      }
+      },
+      "container_id": "CONTAINER_001"
     },
     {
       "size": {
@@ -46,7 +49,8 @@
         "x": 60.0,
         "y": 60.0,
         "z": 0.0
-      }
+      },
+      "container_id": "CONTAINER_001"
     },
     {
       "size": {
@@ -58,7 +62,8 @@
         "x": 75.0,
         "y": 60.0,
         "z": 0.0
-      }
+      },
+      "container_id": "CONTAINER_001"
     },
     {
       "size": {
@@ -70,6 +75,22 @@
         "x": 0.0,
         "y": 15.0,
         "z": 0.0
+      },
+      "container_id": "CONTAINER_001"
+    }
+  ],
+  "containers": [
+    {
+      "id": "CONTAINER_001",
+      "size": {
+        "width": 100,
+        "height": 100,
+        "depth": 100
+      },
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
       }
     }
   ]
