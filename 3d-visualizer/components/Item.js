@@ -193,7 +193,7 @@ export class Item {
 
   destroy() {
     // Remove label element from DOM
-    this.label.element.parentNode.removeChild(this.label.element);
+    this.label?.element?.parentNode?.removeChild(this.label.element);
 
     // Dispose geometries and materials
     this.mesh.children.forEach(child => {

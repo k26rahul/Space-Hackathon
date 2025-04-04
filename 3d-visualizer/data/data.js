@@ -1,6 +1,6 @@
 import { copyToClipboard } from '../utils.js';
 
-export const TOTAL_SETS = 6;
+export const TOTAL_SETS = 10;
 export const DEFAULT_SET = 2;
 export const STORAGE_KEY = 'selectedSetNumber';
 
