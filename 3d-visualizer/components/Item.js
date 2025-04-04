@@ -149,14 +149,10 @@ export class Item {
 
   updateMeshOpacity() {
     if (this.hovered) {
-      // Update solid mesh opacity
-      this.mesh.children[0].material.opacity = 1.0;
-      // Update wireframe opacity
-      this.mesh.children[1].material.opacity = 0.8;
+      this.mesh.children[0].material.opacity = 1.0; // solid mesh
+      this.mesh.children[1].material.opacity = 0.8; // wireframe
     } else {
-      // Reset solid mesh opacity
       this.mesh.children[0].material.opacity = 0.8;
-      // Reset wireframe opacity
       this.mesh.children[1].material.opacity = 0.5;
     }
   }
@@ -197,9 +193,7 @@ export class Item {
 
   destroy() {
     // Remove label element from DOM
-    if (this.label && this.label.element && this.label.element.parentNode) {
-      this.label.element.parentNode.removeChild(this.label.element);
-    }
+    this.label.element.parentNode.removeChild(this.label.element);
 
     // Dispose geometries and materials
     this.mesh.children.forEach(child => {
