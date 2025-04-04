@@ -71,21 +71,16 @@ function initializeContainers(data) {
   return containers;
 }
 
-let guiControls;
-
-// Initialize with default dataset and setup controls
 loadDataset(getStoredDataset()).then(data => {
   const containers = initializeContainers(data);
-  guiControls = setupControls({
+  const guiControls = setupControls({
     containers,
     onDatasetChange: dataset => {
       containers.forEach(c => {
-        c.cleanupItems();
-        scene.remove(c.mesh);
+        c.destroy();
       });
-      loadDataset(dataset).then(newData => {
-        const newContainers = initializeContainers(newData);
-        guiControls.switchContainers(newContainers);
+      return loadDataset(dataset).then(newData => {
+        return initializeContainers(newData);
       });
     },
   });
@@ -102,8 +97,8 @@ loadDataset(getStoredDataset()).then(data => {
       }
     });
 
-    guiControls.updateIntersections();
-    guiControls.updateItemProperties();
+    // guiControls.updateIntersections();
+    // guiControls.updateItemProperties();
 
     renderer.render(scene, orthographicCamera);
     labelRenderer.render(scene, orthographicCamera);

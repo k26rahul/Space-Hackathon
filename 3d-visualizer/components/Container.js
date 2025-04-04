@@ -73,6 +73,15 @@ export class Container {
     this.items = [];
   }
 
+  destroy() {
+    this.cleanupItems();
+    this.mesh.traverse(child => {
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) child.material.dispose();
+    });
+    if (this.mesh.parent) this.mesh.parent.remove(this.mesh);
+  }
+
   checkIntersections() {
     if (!this.sandboxMode) return; // Skip expensive checks if not in sandbox mode
 

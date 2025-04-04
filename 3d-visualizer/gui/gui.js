@@ -8,176 +8,42 @@ import {
   generateRandomItemData,
 } from '../data/data.js';
 
-const gui = new GUI();
-
 export const settings = {
+  allItemsVisible: true,
   showLabelOnIntersection: true,
   currentDataset: getStoredDataset(),
-  allItemsVisible: true,
 };
 
-gui.add(settings, 'showLabelOnIntersection').name('Show Label on Intersection');
-
-// Step control variables
 const ITEM_SIZE_STEP = 5;
 const ITEM_POSITION_STEP = 5;
 
-// Declare folders before usage
-const itemsControlFolder = gui.addFolder('Items');
-itemsControlFolder.close();
-
-const visibilityFolder = gui.addFolder('Visibility');
-visibilityFolder.close();
-
-const visibilityControls = {};
-
-const toggleAllControl = visibilityFolder
-  .add(settings, 'allItemsVisible')
-  .name('Toggle All')
-  .onChange(value => {
-    // Update all items and their controls
-    Object.entries(visibilityControls).forEach(([name, control]) => {
-      control.setValue(value);
-      // No need to call updateVisual() here since setValue will trigger the control's onChange
-    });
-  });
+const gui = new GUI();
 
 export function setupControls({ containers, onDatasetChange }) {
-  settings.currentContainerId = containers[0]?.id || null;
-  let selectedContainer = null;
+  gui.add(settings, 'showLabelOnIntersection').name('Show Label on Intersection');
 
-  function loadContainer(containerId) {
-    cleanupItemControls(); // remove previously displayed controls
-    selectedContainer = containers.find(c => c.id === containerId);
-    if (!selectedContainer) return;
-    selectedContainer.items.forEach(item => setupItemControls(item));
-    settings.allItemsVisible = true;
-    toggleAllControl?.updateDisplay();
-  }
+  const itemsFolder = gui.addFolder('Items');
+  itemsFolder.close();
 
-  // Overwrite existing dataset selector to use new callback
-  gui
-    .add(settings, 'currentDataset', DATASETS)
-    .name('Dataset')
-    .onChange(value => loadDatasetAndSwitch(value));
+  const sizeAndPositionFolder = itemsFolder.addFolder('Size and Position');
+  sizeAndPositionFolder.close();
 
-  // Container selection dropdown
-  gui
-    .add(
-      settings,
-      'currentContainerId',
-      containers.map(c => c.id)
-    )
-    .name('Container')
-    .onChange(value => loadContainer(value));
+  const visibilitySubFolder = itemsFolder.addFolder('Visibility');
+  visibilitySubFolder.close();
 
-  function cleanupItemControls() {
-    // Remove all item folders
-    while (itemsControlFolder.children.length > 0) {
-      itemsControlFolder.children[0].destroy();
-    }
+  const visibilityControls = {};
 
-    // Remove all visibility controls except Toggle All
-    while (visibilityFolder.children.length > 1) {
-      visibilityFolder.children[1].destroy();
-    }
-
-    // Clear visibility controls cache
-    Object.keys(visibilityControls).forEach(key => delete visibilityControls[key]);
-  }
-
-  const itemsControllers = [];
-
-  function setupItemControls(item) {
-    addVisibilityControl(item);
-
-    const itemFolder = itemsControlFolder.addFolder(item.name);
-    itemFolder.close();
-
-    // Add Clone button as first control
-    itemFolder
-      .add(
-        {
-          clone: () => {
-            const newItemData = {
-              size: { ...item.size },
-              position: { ...item.position },
-            };
-            createNewItem(newItemData);
-          },
-        },
-        'clone'
-      )
-      .name('Clone');
-
-    const posControllers = [];
-
-    // Items Size
-    const sizeFolder = itemFolder.addFolder('Size');
-    sizeFolder.open(); // Keep size folder open
-
-    Object.keys(item.size).forEach(dim => {
-      const { min, max } = item.getSizeRange(dim);
-      sizeFolder.add(item.size, dim, min, max, ITEM_SIZE_STEP).onChange(value => {
-        item.updateSize();
-        updateItemPosRanges(item, posControllers); // update item position sliders when item size changes
+  const toggleAllControl = visibilitySubFolder
+    .add(settings, 'allItemsVisible')
+    .name('Toggle All')
+    .onChange(value => {
+      Object.entries(visibilityControls).forEach(([name, control]) => {
+        control.setValue(value);
       });
     });
 
-    // Items Position
-    const posFolder = itemFolder.addFolder('Position');
-    posFolder.open(); // Keep position folder open
-
-    Object.keys(item.position).forEach(axis => {
-      const { min, max } = item.getPositionRange(axis);
-      const ctrl = posFolder
-        .add(item.position, axis, min, max, ITEM_POSITION_STEP)
-        .onChange(value => {
-          item.updatePosition();
-        });
-      posControllers.push({ axis, ctrl });
-    });
-
-    itemsControllers.push({ item, posControllers }); // store only position controllers
-  }
-
-  function loadDatasetAndSwitch(dataset) {
-    cleanupItemControls();
-    onDatasetChange(dataset);
-  }
-
-  // Expose a helper to switch to new containers after dataset change
-  function switchContainers(newContainers) {
-    containers = newContainers;
-    settings.currentContainerId = newContainers[0]?.id || null;
-    loadContainer(settings.currentContainerId);
-  }
-
-  // Initial load
-  loadContainer(settings.currentContainerId);
-
-  // Add Reload button
-  gui
-    .add(
-      {
-        reload: () => loadDataset(settings.currentDataset),
-      },
-      'reload'
-    )
-    .name('Reload Dataset');
-
-  // Position controllers for each item
-  // Format: [{ item, posControllers: [{ axis, ctrl }] }, ...]
-  // axis: 'x', 'y', 'z'
-  function updateItemPosRanges(item, posControllers) {
-    posControllers.forEach(({ axis, ctrl }) => {
-      const { min, max } = item.getPositionRange(axis);
-      ctrl.min(min).max(max).updateDisplay();
-    });
-  }
-
   // Add Animation button
-  visibilityFolder
+  visibilitySubFolder
     .add(
       {
         animateVisibility: () => {
@@ -202,8 +68,143 @@ export function setupControls({ containers, onDatasetChange }) {
     )
     .name('Animate Visibility');
 
+  return;
+
+  settings.currentContainerId = containers[0]?.id || null;
+  let selectedContainer = null;
+
+  // Dataset selection dropdown
+  gui
+    .add(settings, 'currentDataset', DATASETS)
+    .name('Dataset')
+    .onChange(value => {
+      setStoredDataset(value);
+      onDatasetChange(value).then(newContainers => {
+        containers = newContainers;
+        settings.currentContainerId = newContainers[0]?.id || null;
+        loadContainer(settings.currentContainerId);
+      });
+    });
+
+  function loadContainer(containerId) {
+    cleanupItemControls();
+    selectedContainer = containers.find(c => c.id === containerId);
+    if (!selectedContainer) return;
+    selectedContainer.items.forEach(item => setupItemControls(item));
+    settings.allItemsVisible = true;
+    toggleAllControl?.updateDisplay();
+  }
+
+  // Container selection dropdown
+  gui
+    .add(
+      settings,
+      'currentContainerId',
+      containers.map(c => c.id)
+    )
+    .name('Container')
+    .onChange(value => loadContainer(value));
+
+  function cleanupItemControls() {
+    while (itemsFolder.children.length > 0) {
+      itemsFolder.children[0].destroy();
+    }
+
+    // Clear visibility controls cache
+    Object.keys(visibilityControls).forEach(key => delete visibilityControls[key]);
+
+    // Recreate the visibility subfolder
+    visibilitySubFolder = itemsFolder.addFolder('Visibility');
+    visibilitySubFolder.close();
+  }
+
+  const itemsControllers = [];
+
+  function setupItemControls(item) {
+    addVisibilityControl(item);
+
+    // Add Clone button as first control
+    sizeAndPositionFolder
+      .add(
+        {
+          clone: () => {
+            const newItemData = {
+              size: { ...item.size },
+              position: { ...item.position },
+            };
+            createNewItem(newItemData);
+          },
+        },
+        'clone'
+      )
+      .name('Clone');
+
+    const posControllers = [];
+
+    // Items Size
+    const sizeFolder = sizeAndPositionFolder.addFolder('Size');
+    sizeFolder.open(); // Keep size folder open
+
+    Object.keys(item.size).forEach(dim => {
+      const { min, max } = item.getSizeRange(dim);
+      sizeFolder.add(item.size, dim, min, max, ITEM_SIZE_STEP).onChange(value => {
+        item.updateSize();
+        updateItemPosRanges(item, posControllers); // update item position sliders when item size changes
+      });
+    });
+
+    // Items Position
+    const posFolder = sizeAndPositionFolder.addFolder('Position');
+    posFolder.open(); // Keep position folder open
+
+    Object.keys(item.position).forEach(axis => {
+      const { min, max } = item.getPositionRange(axis);
+      const ctrl = posFolder
+        .add(item.position, axis, min, max, ITEM_POSITION_STEP)
+        .onChange(value => {
+          item.updatePosition();
+        });
+      posControllers.push({ axis, ctrl });
+    });
+
+    itemsControllers.push({ item, posControllers }); // store only position controllers
+  }
+
+  function loadDatasetAndSwitch(dataset) {
+    cleanupItemControls();
+    onDatasetChange(dataset);
+  }
+
+  function switchContainers(newContainers) {
+    containers = newContainers;
+    settings.currentContainerId = newContainers[0]?.id || null;
+    loadContainer(settings.currentContainerId);
+  }
+
+  loadContainer(settings.currentContainerId);
+
+  // Add Reload button
+  gui
+    .add(
+      {
+        reload: () => loadDataset(settings.currentDataset),
+      },
+      'reload'
+    )
+    .name('Reload Dataset');
+
+  // Position controllers for each item
+  // Format: [{ item, posControllers: [{ axis, ctrl }] }, ...]
+  // axis: 'x', 'y', 'z'
+  function updateItemPosRanges(item, posControllers) {
+    posControllers.forEach(({ axis, ctrl }) => {
+      const { min, max } = item.getPositionRange(axis);
+      ctrl.min(min).max(max).updateDisplay();
+    });
+  }
+
   function addVisibilityControl(item) {
-    const control = visibilityFolder
+    const control = visibilitySubFolder
       .add(item, 'visible')
       .name(item.name)
       .onChange(() => {

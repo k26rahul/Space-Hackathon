@@ -1,12 +1,11 @@
 import { copyToClipboard } from '../utils.js';
 
 export const DATASETS = [
+  '2c-test',
   '100-10x40x20',
   '100-80x10x10',
   '1000-10x10x10',
-  // '1000000cube1',
   '1000cube10',
-  '125000cube2',
   '125cube20',
   '150-30x20x10',
   '1500-30x5x4',
@@ -25,7 +24,7 @@ export const DATASETS = [
   '8cube50',
 ];
 
-export const DEFAULT_DATASET = '17mixed';
+export const DEFAULT_DATASET = '2c-test';
 export const STORAGE_KEY = 'selectedDataset';
 
 export function getStoredDataset() {
@@ -56,19 +55,21 @@ export function exportDataset(items) {
   copyToClipboard(jsonString);
 }
 
+function getRandomIntInRange(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 export function generateRandomItemData() {
   return {
     size: {
-      // random size between 20 and 50
-      width: Math.floor(Math.random() * 7) * 5 + 20,
-      height: Math.floor(Math.random() * 7) * 5 + 20,
-      depth: Math.floor(Math.random() * 7) * 5 + 20,
+      width: getRandomIntInRange(20, 50),
+      height: getRandomIntInRange(20, 50),
+      depth: getRandomIntInRange(20, 50),
     },
     position: {
-      // random position between 0 and 50
-      x: Math.floor(Math.random() * 51),
-      y: Math.floor(Math.random() * 51),
-      z: -Math.floor(Math.random() * 51), // negative z for depth
+      x: getRandomIntInRange(0, 50),
+      y: getRandomIntInRange(0, 50),
+      z: -getRandomIntInRange(0, 50),
     },
   };
 }
