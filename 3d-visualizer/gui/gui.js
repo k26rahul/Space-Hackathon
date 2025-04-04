@@ -12,6 +12,7 @@ export const settings = {
   allItemsVisible: true,
   showLabelOnIntersection: true,
   currentDataset: getStoredDataset(),
+  selectedContainerId: null,
 };
 
 const ITEM_SIZE_STEP = 5;
@@ -20,110 +21,66 @@ const ITEM_POSITION_STEP = 5;
 const gui = new GUI();
 
 export function setupControls({ containers, onDatasetChange }) {
-  gui.add(settings, 'showLabelOnIntersection').name('Show Label on Intersection');
-
-  const itemsFolder = gui.addFolder('Items');
-  itemsFolder.close();
-
-  const sizeAndPositionFolder = itemsFolder.addFolder('Size and Position');
-  sizeAndPositionFolder.close();
-
-  const visibilitySubFolder = itemsFolder.addFolder('Visibility');
-  visibilitySubFolder.close();
-
-  const visibilityControls = {};
-
-  const toggleAllControl = visibilitySubFolder
-    .add(settings, 'allItemsVisible')
-    .name('Toggle All')
-    .onChange(value => {
-      Object.entries(visibilityControls).forEach(([name, control]) => {
-        control.setValue(value);
-      });
-    });
-
-  // Add Animation button
-  visibilitySubFolder
-    .add(
-      {
-        animateVisibility: () => {
-          // Get all visibility controls
-          const controls = Object.values(visibilityControls);
-          if (controls.length === 0) return;
-
-          // First, hide all items
-          controls.forEach(control => {
-            control.setValue(false);
-          });
-
-          // Then show them one by one with delay
-          controls.forEach((control, index) => {
-            setTimeout(() => {
-              control.setValue(true);
-            }, 200 * (index + 1));
-          });
-        },
-      },
-      'animateVisibility'
-    )
-    .name('Animate Visibility');
-
-  return;
-
-  settings.currentContainerId = containers[0]?.id || null;
+  settings.selectedContainerId = containers[0]?.id || null;
   let selectedContainer = null;
 
-  // Dataset selection dropdown
-  gui
-    .add(settings, 'currentDataset', DATASETS)
-    .name('Dataset')
-    .onChange(value => {
-      setStoredDataset(value);
-      onDatasetChange(value).then(newContainers => {
-        containers = newContainers;
-        settings.currentContainerId = newContainers[0]?.id || null;
-        loadContainer(settings.currentContainerId);
-      });
-    });
+  function switchContainers(newContainers) {
+    containers = newContainers;
+    settings.selectedContainerId = newContainers[0]?.id || null;
+    loadContainer(settings.selectedContainerId);
+  }
 
   function loadContainer(containerId) {
     cleanupItemControls();
     selectedContainer = containers.find(c => c.id === containerId);
-    if (!selectedContainer) return;
     selectedContainer.items.forEach(item => setupItemControls(item));
     settings.allItemsVisible = true;
-    toggleAllControl?.updateDisplay();
+    toggleAllControl.updateDisplay();
   }
-
-  // Container selection dropdown
-  gui
-    .add(
-      settings,
-      'currentContainerId',
-      containers.map(c => c.id)
-    )
-    .name('Container')
-    .onChange(value => loadContainer(value));
 
   function cleanupItemControls() {
-    while (itemsFolder.children.length > 0) {
-      itemsFolder.children[0].destroy();
+    while (sizeAndPositionFolder.children.length > 0) {
+      sizeAndPositionFolder.children[0].destroy();
     }
-
-    // Clear visibility controls cache
+    while (visibilitySubFolder.children.length > 2) {
+      visibilitySubFolder.children[2].destroy();
+    }
     Object.keys(visibilityControls).forEach(key => delete visibilityControls[key]);
-
-    // Recreate the visibility subfolder
-    visibilitySubFolder = itemsFolder.addFolder('Visibility');
-    visibilitySubFolder.close();
   }
 
+  function createNewItem(itemData) {
+    const newItem = selectedContainer.addItem(itemData);
+    setupItemControls(newItem);
+    return newItem;
+  }
+
+  // Format: [{ item, posControllers: [{ axis, ctrl }] }, ...]
+  // axis: 'x', 'y', 'z'
   const itemsControllers = [];
 
   function setupItemControls(item) {
-    addVisibilityControl(item);
+    function updateItemPosRanges(item, posControllers) {
+      posControllers.forEach(({ axis, ctrl }) => {
+        const { min, max } = item.getPositionRange(axis);
+        ctrl.min(min).max(max).updateDisplay();
+      });
+    }
 
-    // Add Clone button as first control
+    // Add visibility toggle
+    const control = visibilitySubFolder
+      .add(item, 'visible')
+      .name(item.name)
+      .onChange(() => {
+        item.updateVisual();
+        settings.allItemsVisible = selectedContainer.items.every(i => i.visible);
+        toggleAllControl.updateDisplay();
+      });
+    visibilityControls[item.name] = control;
+
+    const itemFolder = sizeAndPositionFolder.addFolder(item.name);
+    itemFolder.close();
+
+    // Add Clone button
     sizeAndPositionFolder
       .add(
         {
@@ -139,11 +96,9 @@ export function setupControls({ containers, onDatasetChange }) {
       )
       .name('Clone');
 
-    const posControllers = [];
-
     // Items Size
-    const sizeFolder = sizeAndPositionFolder.addFolder('Size');
-    sizeFolder.open(); // Keep size folder open
+    const sizeFolder = itemFolder.addFolder('Size');
+    sizeFolder.open();
 
     Object.keys(item.size).forEach(dim => {
       const { min, max } = item.getSizeRange(dim);
@@ -154,9 +109,10 @@ export function setupControls({ containers, onDatasetChange }) {
     });
 
     // Items Position
-    const posFolder = sizeAndPositionFolder.addFolder('Position');
-    posFolder.open(); // Keep position folder open
+    const posFolder = itemFolder.addFolder('Position');
+    posFolder.open();
 
+    const posControllers = [];
     Object.keys(item.position).forEach(axis => {
       const { min, max } = item.getPositionRange(axis);
       const ctrl = posFolder
@@ -167,63 +123,16 @@ export function setupControls({ containers, onDatasetChange }) {
       posControllers.push({ axis, ctrl });
     });
 
-    itemsControllers.push({ item, posControllers }); // store only position controllers
+    itemsControllers.push({ item, posControllers });
   }
 
-  function loadDatasetAndSwitch(dataset) {
-    cleanupItemControls();
-    onDatasetChange(dataset);
-  }
+  gui.add(settings, 'showLabelOnIntersection').name('Show Label on Intersection');
 
-  function switchContainers(newContainers) {
-    containers = newContainers;
-    settings.currentContainerId = newContainers[0]?.id || null;
-    loadContainer(settings.currentContainerId);
-  }
-
-  loadContainer(settings.currentContainerId);
-
-  // Add Reload button
-  gui
-    .add(
-      {
-        reload: () => loadDataset(settings.currentDataset),
-      },
-      'reload'
-    )
-    .name('Reload Dataset');
-
-  // Position controllers for each item
-  // Format: [{ item, posControllers: [{ axis, ctrl }] }, ...]
-  // axis: 'x', 'y', 'z'
-  function updateItemPosRanges(item, posControllers) {
-    posControllers.forEach(({ axis, ctrl }) => {
-      const { min, max } = item.getPositionRange(axis);
-      ctrl.min(min).max(max).updateDisplay();
-    });
-  }
-
-  function addVisibilityControl(item) {
-    const control = visibilitySubFolder
-      .add(item, 'visible')
-      .name(item.name)
-      .onChange(() => {
-        item.updateVisual();
-        // Update all-visible state and its display
-        settings.allItemsVisible = selectedContainer.items.every(i => i.visible);
-        toggleAllControl.updateDisplay();
-      });
-    visibilityControls[item.name] = control;
-  }
-
-  function createNewItem(itemData) {
-    const newItem = selectedContainer.addItem(itemData);
-    setupItemControls(newItem);
-    return newItem;
-  }
+  const itemsFolder = gui.addFolder('Items');
+  itemsFolder.close();
 
   // Add New Item button
-  gui
+  itemsFolder
     .add(
       {
         addItem: () => {
@@ -235,19 +144,81 @@ export function setupControls({ containers, onDatasetChange }) {
     )
     .name('Add New Item');
 
+  const sizeAndPositionFolder = itemsFolder.addFolder('Size and Position');
+  sizeAndPositionFolder.close();
+
+  const visibilitySubFolder = itemsFolder.addFolder('Visibility');
+  visibilitySubFolder.close();
+
+  // Add Animate Visibility button
+  visibilitySubFolder
+    .add(
+      {
+        animateVisibility: () => {
+          // Get all visibility controls
+          const controls = Object.values(visibilityControls);
+          if (controls.length === 0) return;
+
+          // First, hide all items
+          controls.forEach(control => {
+            control.setValue(false);
+          });
+
+          // Then show them one by one with delay
+          const DELAY = 200;
+          controls.forEach((control, index) => {
+            setTimeout(() => {
+              control.setValue(true);
+            }, DELAY * (index + 1));
+          });
+        },
+      },
+      'animateVisibility'
+    )
+    .name('Animate Visibility');
+
+  const visibilityControls = {};
+  const toggleAllControl = visibilitySubFolder
+    .add(settings, 'allItemsVisible')
+    .name('Toggle All')
+    .onChange(value => {
+      Object.entries(visibilityControls).forEach(([name, control]) => {
+        control.setValue(value);
+      });
+    });
+
+  // Dataset selection dropdown
+  gui
+    .add(settings, 'currentDataset', DATASETS)
+    .name('Dataset')
+    .onChange(value => {
+      setStoredDataset(value);
+      onDatasetChange(value).then(newContainers => {
+        switchContainers(newContainers);
+      });
+    });
+
+  // Container selection dropdown
+  gui
+    .add(
+      settings,
+      'selectedContainerId',
+      containers.map(c => c.id)
+    )
+    .name('Container')
+    .onChange(value => loadContainer(value));
+
   // Intersections
-  const intersectionsFolder = gui.addFolder('Intersections');
+  const intersectionsFolder = itemsFolder.addFolder('Intersections');
+  const intersectionsDisplay = new GuiTextDisplay(intersectionsFolder);
   intersectionsFolder.close();
 
-  const intersectionsDisplay = new GuiTextDisplay(intersectionsFolder);
-
   // Item Properties
-  const itemPropertiesFolder = gui.addFolder('Item Properties');
+  const itemPropertiesFolder = itemsFolder.addFolder('Item Properties');
+  const propertiesDisplay = new GuiTextDisplay(itemPropertiesFolder);
   itemPropertiesFolder.close();
 
-  const propertiesDisplay = new GuiTextDisplay(itemPropertiesFolder);
-
-  // Add Export button to Item Properties folder
+  // Add Export Items Data button
   gui
     .add(
       {
@@ -257,7 +228,6 @@ export function setupControls({ containers, onDatasetChange }) {
     )
     .name('Export Items Data');
 
-  // Update function for intersections display
   function updateIntersections() {
     let html = '';
     selectedContainer.items.forEach(item => {
@@ -268,7 +238,6 @@ export function setupControls({ containers, onDatasetChange }) {
     intersectionsDisplay.update(html);
   }
 
-  // Update function for item properties display
   function updateItemProperties() {
     let html = '';
     let totalItemVolume = 0;
@@ -296,6 +265,8 @@ export function setupControls({ containers, onDatasetChange }) {
 
     propertiesDisplay.update(html);
   }
+
+  loadContainer(settings.selectedContainerId);
 
   return {
     updateIntersections,
