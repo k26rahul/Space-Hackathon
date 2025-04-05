@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { axisToDimension } from '../utils.js';
 import { Item } from './Item.js';
+import { ContainerGui } from '../gui/ContainerGui.js';
+import { gui } from '../gui/gui.js';
 
 export class Container {
   constructor({ size, position, id }) {
@@ -12,7 +14,9 @@ export class Container {
     this.items = {}; // {id: Item}
     this.mesh = this.createContainerMesh();
     this.updatePosition();
-    this.guiControls = null;
+
+    // Initialize GUI
+    this.gui = new ContainerGui(this, gui);
   }
 
   get itemsArray() {
@@ -77,8 +81,8 @@ export class Container {
       if (child.material) child.material.dispose();
     });
     if (this.mesh.parent) this.mesh.parent.remove(this.mesh);
-    if (this.guiControls) {
-      this.guiControls.destroy();
+    if (this.gui) {
+      this.gui.destroy();
     }
   }
 
@@ -151,8 +155,8 @@ export class Container {
 
   tick() {
     this.checkIntersections();
-    if (this.guiControls) {
-      this.guiControls.updateDisplays();
+    if (this.gui) {
+      this.gui.updateDisplays();
     }
   }
 
@@ -192,9 +196,5 @@ export class Container {
         }
       }
     });
-  }
-
-  setGuiControls(controls) {
-    this.guiControls = controls;
   }
 }

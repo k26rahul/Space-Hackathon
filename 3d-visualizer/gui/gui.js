@@ -1,5 +1,4 @@
 import { GUI } from 'lil-gui';
-import { ContainerGui } from './ContainerGui.js';
 import { DATASETS, getStoredDataset, setStoredDataset, exportDataset } from '../data/data.js';
 
 export const settings = {
@@ -7,10 +6,9 @@ export const settings = {
   currentDataset: getStoredDataset(),
 };
 
-let containerGuis = [];
-const gui = new GUI();
+export const gui = new GUI();
 
-export function initializeGUI({ containers, onDatasetChange }) {
+export function initializeGUI({ onDatasetChange, onExport }) {
   gui.add(settings, 'showLabelOnIntersection').name('Show Label on Intersection');
 
   // Dataset selection
@@ -19,32 +17,11 @@ export function initializeGUI({ containers, onDatasetChange }) {
     .name('Dataset')
     .onChange(value => {
       setStoredDataset(value);
-      cleanupContainerGuis();
       onDatasetChange(value);
     });
 
   // Export button
-  gui
-    .add(
-      {
-        exportDataset: () => {
-          Object.values(containers).forEach(container => {
-            exportDataset(container);
-          });
-        },
-      },
-      'exportDataset'
-    )
-    .name('Export Dataset');
+  gui.add({ exportDataset: onExport }, 'exportDataset').name('Export Dataset');
 
-  Object.values(containers).forEach(container => {
-    const containerGui = new ContainerGui(container, gui);
-    container.setGuiControls(containerGui);
-    containerGuis.push(containerGui);
-  });
-}
-
-function cleanupContainerGuis() {
-  containerGuis.forEach(gui => gui.destroy());
-  containerGuis = [];
+  return { gui };
 }

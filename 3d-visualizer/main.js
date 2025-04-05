@@ -7,6 +7,7 @@ import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { Container } from './components/Container.js';
 import { initializeGUI } from './gui/gui.js';
 import { loadDataset, getStoredDataset } from './data/data.js';
+import { exportDataset } from './utils.js';
 
 const stats = new Stats();
 document.body.appendChild(stats.dom);
@@ -69,17 +70,17 @@ function initializeContainers(data) {
 
 async function main() {
   const data = await loadDataset(getStoredDataset());
-  const containers = initializeContainers(data);
+  let containers = initializeContainers(data);
 
   initializeGUI({
-    containers,
     onDatasetChange: async dataset => {
       Object.values(containers).forEach(c => {
         c.destroy();
       });
       const newData = await loadDataset(dataset);
-      return initializeContainers(newData);
+      containers = initializeContainers(newData);
     },
+    onExport: () => exportDataset(containers),
   });
 
   function animate() {
@@ -99,4 +100,6 @@ async function main() {
 }
 
 console.log('Initializing 3D visualizer...');
-main().catch(console.error);
+main()
+  .then(() => console.log('3D visualizer initialized successfully.'))
+  .catch(console.error);

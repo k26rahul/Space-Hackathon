@@ -37,3 +37,28 @@ export async function copyToClipboard(text) {
 export function createSequentialArray(length) {
   return Array.from({ length }, (_, i) => i);
 }
+
+export function exportDataset(containers) {
+  const data = {
+    items: [],
+    containers: [],
+  };
+
+  Object.values(containers).forEach(container => {
+    data.containers.push({
+      id: container.id,
+      size: container.size,
+      position: container.position,
+    });
+
+    container.itemsArray.forEach(item => {
+      data.items.push({
+        size: item.size,
+        position: item.position,
+        container_id: container.id,
+      });
+    });
+  });
+
+  copyToClipboard(JSON.stringify(data, null, 2));
+}
