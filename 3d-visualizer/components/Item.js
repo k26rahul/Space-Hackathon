@@ -12,7 +12,7 @@ export class Item {
   static #counter = 1;
 
   constructor({ size, position, id }) {
-    this.name = id ? `Item ${id}` : `Item ${Item.#counter++}`;
+    this.id = id || `Item ${Item.#counter++}`;
     this.size = size;
     this.position = position;
     this.color = colorProvider.getNextColor();
@@ -72,7 +72,7 @@ export class Item {
   updateLabelText(labelDiv) {
     const sizeInfo = `${this.size.width}x${this.size.height}x${this.size.depth}`;
     const posInfo = `(${this.position.x},${this.position.y},${this.position.z})`;
-    labelDiv.textContent = `${this.name}\n${sizeInfo}\n${posInfo}`;
+    labelDiv.textContent = `${this.id}\n${sizeInfo}\n${posInfo}`;
   }
 
   updatePosition() {

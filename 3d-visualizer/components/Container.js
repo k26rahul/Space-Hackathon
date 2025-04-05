@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { axisToDimension } from '../utils.js';
-import { Item } from './Item.js'; // Add this import at the top
+import { Item } from './Item.js';
 
 export class Container {
   constructor({ size, position, id }) {
@@ -9,9 +9,10 @@ export class Container {
     this.id = id;
     this.sandboxMode = false;
 
-    this.items = {}; // Changed from array to object
+    this.items = {}; // {id: Item}
     this.mesh = this.createContainerMesh();
     this.updatePosition();
+    this.guiControls = null;
   }
 
   get itemsArray() {
@@ -63,18 +64,10 @@ export class Container {
 
   addItem(itemData) {
     const item = new Item(itemData);
-    this.items[item.name] = item; // Use item name as key
+    this.items[item.id] = item;
     this.mesh.add(item.mesh);
     item.setContainer(this);
     return item;
-  }
-
-  cleanupItems() {
-    Object.values(this.items).forEach(item => {
-      item.destroy();
-      this.mesh.remove(item.mesh);
-    });
-    this.items = {};
   }
 
   destroy() {
@@ -84,6 +77,17 @@ export class Container {
       if (child.material) child.material.dispose();
     });
     if (this.mesh.parent) this.mesh.parent.remove(this.mesh);
+    if (this.guiControls) {
+      this.guiControls.destroy();
+    }
+  }
+
+  cleanupItems() {
+    this.itemsArray.forEach(item => {
+      item.destroy();
+      this.mesh.remove(item.mesh);
+    });
+    this.items = {};
   }
 
   checkIntersections() {
@@ -147,6 +151,9 @@ export class Container {
 
   tick() {
     this.checkIntersections();
+    if (this.guiControls) {
+      this.guiControls.updateDisplays();
+    }
   }
 
   getPositionRange(axis) {
@@ -185,5 +192,9 @@ export class Container {
         }
       }
     });
+  }
+
+  setGuiControls(controls) {
+    this.guiControls = controls;
   }
 }
