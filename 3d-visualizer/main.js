@@ -61,32 +61,30 @@ function initializeContainers(data) {
   }, {});
 
   data.items.forEach(itemData => {
-    const target = containers[itemData.container_id];
-    if (target) target.addItem(itemData);
+    containers[itemData.container_id].addItem(itemData);
   });
 
   return containers;
 }
 
-// Update the initial container ID selection.
-loadDataset(getStoredDataset()).then(data => {
+async function main() {
+  const data = await loadDataset(getStoredDataset());
   const containers = initializeContainers(data);
+
   initializeGUI({
     containers,
-    onDatasetChange: dataset => {
+    onDatasetChange: async dataset => {
       Object.values(containers).forEach(c => {
         c.destroy();
       });
-      return loadDataset(dataset).then(newData => {
-        return initializeContainers(newData);
-      });
+      const newData = await loadDataset(dataset);
+      return initializeContainers(newData);
     },
   });
 
   function animate() {
     requestAnimationFrame(animate);
     stats.begin();
-
     controls.update();
 
     Object.values(containers).forEach(c => {
@@ -95,8 +93,10 @@ loadDataset(getStoredDataset()).then(data => {
 
     renderer.render(scene, orthographicCamera);
     labelRenderer.render(scene, orthographicCamera);
-
     stats.end();
   }
   animate();
-});
+}
+
+console.log('Initializing 3D visualizer...');
+main().catch(console.error);
