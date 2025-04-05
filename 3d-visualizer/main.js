@@ -4,16 +4,14 @@ import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 
-import { Item } from './components/Item.js';
 import { Container } from './components/Container.js';
-
+import { initializeGUI } from './gui/gui.js';
 import { loadDataset, getStoredDataset } from './data/data.js';
-import { setupControls } from './gui/gui.js';
-
-const canvasContainer = document.getElementById('canvas-container');
 
 const stats = new Stats();
 document.body.appendChild(stats.dom);
+
+const canvasContainer = document.getElementById('canvas-container');
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
@@ -42,8 +40,6 @@ const orthographicCamera = new THREE.OrthographicCamera(
 const controls = new OrbitControls(orthographicCamera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-// controls.autoRotate = true;
-// controls.autoRotateSpeed = 1;
 
 orthographicCamera.position.set(100, 100, 150);
 orthographicCamera.zoom = 0.9;
@@ -56,27 +52,29 @@ const axesHelper = new THREE.AxesHelper(150);
 scene.add(axesHelper);
 
 function initializeContainers(data) {
-  const containers = data.containers.map(containerData => {
+  const containers = data.containers.reduce((acc, containerData) => {
     const ctr = new Container(containerData);
     scene.add(ctr.mesh);
     ctr.setupMousePicking(orthographicCamera, renderer);
-    return ctr;
-  });
+    acc[containerData.id] = ctr;
+    return acc;
+  }, {});
 
   data.items.forEach(itemData => {
-    const target = containers.find(c => c.id === itemData.container_id);
+    const target = containers[itemData.container_id];
     if (target) target.addItem(itemData);
   });
 
   return containers;
 }
 
+// Update the initial container ID selection.
 loadDataset(getStoredDataset()).then(data => {
   const containers = initializeContainers(data);
-  const guiControls = setupControls({
+  initializeGUI({
     containers,
     onDatasetChange: dataset => {
-      containers.forEach(c => {
+      Object.values(containers).forEach(c => {
         c.destroy();
       });
       return loadDataset(dataset).then(newData => {
@@ -91,14 +89,9 @@ loadDataset(getStoredDataset()).then(data => {
 
     controls.update();
 
-    containers.forEach(c => {
-      if (c.sandboxMode) {
-        c.checkIntersections();
-      }
+    Object.values(containers).forEach(c => {
+      c.tick();
     });
-
-    // guiControls.updateIntersections();
-    // guiControls.updateItemProperties();
 
     renderer.render(scene, orthographicCamera);
     labelRenderer.render(scene, orthographicCamera);

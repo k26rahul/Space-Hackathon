@@ -7,11 +7,15 @@ export class Container {
     this.size = size; // { width, height, depth }
     this.position = position; // {x, y, z}
     this.id = id;
+    this.sandboxMode = false;
 
-    this.items = []; // [<Item> ...]
+    this.items = {}; // Changed from array to object
     this.mesh = this.createContainerMesh();
     this.updatePosition();
-    this.sandboxMode = false;
+  }
+
+  get itemsArray() {
+    return Object.values(this.items);
   }
 
   createContainerMesh() {
@@ -59,18 +63,18 @@ export class Container {
 
   addItem(itemData) {
     const item = new Item(itemData);
-    this.items.push(item);
+    this.items[item.name] = item; // Use item name as key
     this.mesh.add(item.mesh);
     item.setContainer(this);
     return item;
   }
 
   cleanupItems() {
-    this.items.forEach(item => {
+    Object.values(this.items).forEach(item => {
       item.destroy();
       this.mesh.remove(item.mesh);
     });
-    this.items = [];
+    this.items = {};
   }
 
   destroy() {
@@ -86,17 +90,17 @@ export class Container {
     if (!this.sandboxMode) return; // Skip expensive checks if not in sandbox mode
 
     // Reset intersecting flag and intersections list for all items
-    this.items.forEach(item => {
+    this.itemsArray.forEach(item => {
       item.intersecting = false;
       item.intersections = [];
     });
 
     // Custom intersection check between items
-    for (let i = 0; i < this.items.length; i++) {
-      const itemA = this.items[i];
+    for (let i = 0; i < this.itemsArray.length; i++) {
+      const itemA = this.itemsArray[i];
       const boxA = new THREE.Box3().setFromObject(itemA.mesh);
-      for (let j = i + 1; j < this.items.length; j++) {
-        const itemB = this.items[j];
+      for (let j = i + 1; j < this.itemsArray.length; j++) {
+        const itemB = this.itemsArray[j];
         const boxB = new THREE.Box3().setFromObject(itemB.mesh);
         const overlapX = Math.min(boxA.max.x, boxB.max.x) - Math.max(boxA.min.x, boxB.min.x);
         const overlapY = Math.min(boxA.max.y, boxB.max.y) - Math.max(boxA.min.y, boxB.min.y);
@@ -122,7 +126,7 @@ export class Container {
       z: this.position.z,
     };
     const relaxation = 0.1; // minimum relaxation margin to prevent false positives
-    this.items.forEach(item => {
+    this.itemsArray.forEach(item => {
       const box = new THREE.Box3().setFromObject(item.mesh);
       if (
         box.min.x < containerMin.x - relaxation ||
@@ -138,7 +142,11 @@ export class Container {
     });
 
     // Update visuals for all items
-    this.items.forEach(item => item.updateVisual());
+    this.itemsArray.forEach(item => item.updateVisual());
+  }
+
+  tick() {
+    this.checkIntersections();
   }
 
   getPositionRange(axis) {
@@ -159,7 +167,7 @@ export class Container {
       raycaster.setFromCamera(mouse, camera);
 
       // Reset hover state for all items
-      this.items.forEach(item => {
+      this.itemsArray.forEach(item => {
         item.hovered = false;
       });
 
@@ -168,7 +176,7 @@ export class Container {
 
       // Get all items that are intersected
       for (const intersect of allIntersects) {
-        const item = this.items.find(item =>
+        const item = this.itemsArray.find(item =>
           item.mesh.children.some(child => child === intersect.object)
         );
         if (item && item.visible) {

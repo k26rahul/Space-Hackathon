@@ -20,7 +20,7 @@ const ITEM_POSITION_STEP = 5;
 
 const gui = new GUI();
 
-export function setupControls({ containers, onDatasetChange }) {
+export function initializeGUI({ containers, onDatasetChange }) {
   settings.selectedContainerId = containers[0]?.id || null;
   let selectedContainer = null;
 
@@ -32,8 +32,8 @@ export function setupControls({ containers, onDatasetChange }) {
 
   function loadContainer(containerId) {
     cleanupItemControls();
-    selectedContainer = containers.find(c => c.id === containerId);
-    selectedContainer.items.forEach(item => setupItemControls(item));
+    selectedContainer = containers[containerId]; // Changed from containers.find()
+    selectedContainer.itemsArray.forEach(item => setupItemControls(item));
     settings.allItemsVisible = true;
     toggleAllControl.updateDisplay();
   }
@@ -203,7 +203,7 @@ export function setupControls({ containers, onDatasetChange }) {
     .add(
       settings,
       'selectedContainerId',
-      containers.map(c => c.id)
+      Object.keys(containers) // Changed from containers.map()
     )
     .name('Container')
     .onChange(value => loadContainer(value));
@@ -213,24 +213,24 @@ export function setupControls({ containers, onDatasetChange }) {
   const intersectionsDisplay = new GuiTextDisplay(intersectionsFolder);
   intersectionsFolder.close();
 
-  // Item Properties
-  const itemPropertiesFolder = itemsFolder.addFolder('Item Properties');
-  const propertiesDisplay = new GuiTextDisplay(itemPropertiesFolder);
-  itemPropertiesFolder.close();
+  // Container Stats
+  const containerStatsFolder = itemsFolder.addFolder('Container Stats');
+  const containerStatsDisplay = new GuiTextDisplay(containerStatsFolder);
+  containerStatsFolder.close();
 
-  // Add Export Items Data button
+  // Export Dataset button
   gui
     .add(
       {
-        exportItems: () => exportDataset(selectedContainer.items),
+        exportDataset: () => exportDataset(selectedContainer),
       },
-      'exportItems'
+      'exportDataset'
     )
-    .name('Export Items Data');
+    .name('Export Dataset');
 
   function updateIntersections() {
     let html = '';
-    selectedContainer.items.forEach(item => {
+    selectedContainer.itemsArray.forEach(item => {
       html += `<strong>${item.name}:</strong> `;
       html += item.intersections.length > 0 ? item.intersections.join(', ') : 'None';
       html += '<br/>';
@@ -240,37 +240,23 @@ export function setupControls({ containers, onDatasetChange }) {
 
   function updateItemProperties() {
     let html = '';
-    let totalItemVolume = 0;
     const containerVolume =
       selectedContainer.size.width * selectedContainer.size.height * selectedContainer.size.depth;
 
-    html += '<strong>Format</strong><br/>';
-    html += 'Size: width, height, depth<br/>';
-    html += 'Position: x, y, z<br/><br/>';
+    html += '<strong>Item Count</strong><br/>';
+    html += `Total Items: ${selectedContainer.itemsArray.length}<br/><br/>`;
 
-    selectedContainer.items.forEach(item => {
-      const itemVolume = item.size.width * item.size.height * item.size.depth;
-      totalItemVolume += itemVolume;
+    let totalItemVolume = selectedContainer.itemsArray.reduce((acc, item) => {
+      return acc + item.size.width * item.size.height * item.size.depth;
+    }, 0);
 
-      html += `<strong>${item.name}</strong><br/>`;
-      html += `Size: ${item.size.width}, ${item.size.height}, ${item.size.depth}<br/>`;
-      html += `Position: ${item.position.x}, ${item.position.y}, ${item.position.z}<br/>`;
-      html += '<br/>';
-    });
-
-    html += `<strong>Volume Statistics</strong><br/>`;
+    html += `<strong>${selectedContainer.name}:</strong><br/>`;
     html += `Container Volume: ${containerVolume / 1000}K cubic units<br/>`;
     html += `Total Items Volume: ${totalItemVolume / 1000}K cubic units<br/>`;
     html += `Space Utilization: ${((totalItemVolume / containerVolume) * 100).toFixed(1)}%<br/>`;
 
-    propertiesDisplay.update(html);
+    containerStatsDisplay.update(html);
   }
 
   loadContainer(settings.selectedContainerId);
-
-  return {
-    updateIntersections,
-    updateItemProperties,
-    switchContainers,
-  };
 }
