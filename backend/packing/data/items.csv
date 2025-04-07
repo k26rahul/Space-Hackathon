@@ -1,0 +1,3 @@
+item_id,name,width_cm,depth_cm,height_cm,mass_kg,priority,expiry_date,usage_limit,preferred_zone
+000001,Research_Samples,50,50,50,2.4,84,N/A,2304,Storage_Bay
+000002,Research_Samples,50,50,50,2.4,84,N/A,2304,Storage_Bay
