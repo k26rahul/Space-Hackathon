@@ -15,10 +15,11 @@ export function initializeGUI({ containers, onDatasetChange, onExport }) {
   gui
     .add(settings, 'currentDataset', DATASETS)
     .name('Dataset')
-    .onChange(value => {
+    .onChange(async value => {
       setStoredDataset(value);
-      containers = onDatasetChange(value);
+      containers = await onDatasetChange(value);
       setupContainerGUI(containers);
+      console.log('Dataset changed:', value, containers);
     });
 
   // Export button
@@ -26,6 +27,7 @@ export function initializeGUI({ containers, onDatasetChange, onExport }) {
 
   function setupContainerGUI(containers) {
     Object.values(containers).forEach(container => {
+      console.log('Setting up GUI for container:', container.id);
       container.initGUI();
     });
   }

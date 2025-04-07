@@ -37,6 +37,7 @@ export function setStoredDataset(dataset) {
 }
 
 export function loadDataset(dataset) {
+  console.log('Loading dataset:', dataset);
   return fetch(`./data/${dataset}.json`)
     .then(res => res.json())
     .catch(error => {

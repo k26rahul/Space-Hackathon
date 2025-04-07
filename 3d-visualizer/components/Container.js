@@ -2,14 +2,16 @@ import * as THREE from 'three';
 import { axisToDimension } from '../utils.js';
 import { Item } from './Item.js';
 import { ContainerGui } from '../gui/ContainerGui.js';
-import { gui } from '../gui/gui.js';
+
+const TICK_INTERVAL = 100;
 
 export class Container {
-  constructor({ size, position, id }) {
+  constructor({ size, position, id }, sandboxMode = false) {
     this.size = size; // { width, height, depth }
     this.position = position; // {x, y, z}
     this.id = id;
-    this.sandboxMode = false;
+    this.sandboxMode = sandboxMode;
+    this.lastTickTime = 0;
 
     this.items = {}; // {id: Item}
     this.mesh = this.createContainerMesh();
@@ -81,10 +83,8 @@ export class Container {
       if (child.geometry) child.geometry.dispose();
       if (child.material) child.material.dispose();
     });
-    if (this.mesh.parent) this.mesh.parent.remove(this.mesh);
-    if (this.gui) {
-      this.gui.destroy();
-    }
+    this.mesh.parent.remove(this.mesh);
+    this.gui.destroy();
   }
 
   cleanupItems() {
@@ -149,15 +149,15 @@ export class Container {
         item.intersections.push('container');
       }
     });
-
-    // Update visuals for all items
-    this.itemsArray.forEach(item => item.updateVisual());
   }
 
   tick() {
-    this.checkIntersections();
-    if (this.gui) {
+    const currentTime = Date.now();
+    if (currentTime - this.lastTickTime >= TICK_INTERVAL) {
+      this.checkIntersections();
       this.gui.updateDisplays();
+      this.itemsArray.forEach(item => item.updateVisual());
+      this.lastTickTime = currentTime;
     }
   }
 

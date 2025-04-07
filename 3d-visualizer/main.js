@@ -53,10 +53,14 @@ const axesHelper = new THREE.AxesHelper(150);
 scene.add(axesHelper);
 
 function initializeContainers(data) {
+  const enableSandbox = data.items.length < 100;
+
   const containers = data.containers.reduce((acc, containerData) => {
-    const ctr = new Container(containerData);
+    const ctr = new Container(containerData, enableSandbox);
     scene.add(ctr.mesh);
-    ctr.setupMousePicking(orthographicCamera, renderer);
+    if (enableSandbox) {
+      ctr.setupMousePicking(orthographicCamera, renderer);
+    }
     acc[containerData.id] = ctr;
     return acc;
   }, {});
@@ -75,10 +79,10 @@ async function main() {
   initializeGUI({
     containers,
     onDatasetChange: async dataset => {
+      const newData = await loadDataset(dataset);
       Object.values(containers).forEach(c => {
         c.destroy();
       });
-      const newData = await loadDataset(dataset);
       containers = initializeContainers(newData);
       return containers;
     },

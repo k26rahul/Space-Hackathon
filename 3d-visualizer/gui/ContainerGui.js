@@ -89,7 +89,6 @@ export class ContainerGui {
 
     // Size controls
     const sizeFolder = itemFolder.addFolder('Size');
-    sizeFolder.close();
     Object.keys(item.size).forEach(dim => {
       const { min, max } = item.getSizeRange(dim);
       sizeFolder.add(item.size, dim, min, max, ITEM_SIZE_STEP).onChange(() => {
@@ -100,7 +99,6 @@ export class ContainerGui {
 
     // Position controls
     const posFolder = itemFolder.addFolder('Position');
-    posFolder.close();
     const positionControllers = [];
     Object.keys(item.position).forEach(axis => {
       const { min, max } = item.getPositionRange(axis);
@@ -144,8 +142,9 @@ export class ContainerGui {
       )
       .name('Animate Visibility');
 
-    visibilityFolder
-      .add({ allVisible: true }, 'allVisible')
+    const allVisibleObj = { allVisible: true };
+    const allVisibleController = visibilityFolder
+      .add(allVisibleObj, 'allVisible')
       .name('Toggle All')
       .onChange(value => {
         Object.values(this.visibilityControls).forEach(ctrl => ctrl.setValue(value));
@@ -155,9 +154,17 @@ export class ContainerGui {
       const control = visibilityFolder
         .add(item, 'visible')
         .name(item.id)
-        .onChange(() => item.updateVisual());
+        .onChange(() => {
+          item.updateVisual();
+          this.updateAllVisibleState(allVisibleController);
+        });
       this.visibilityControls[item.id] = control;
     });
+  }
+
+  updateAllVisibleState(allVisibleController) {
+    const allVisible = Object.values(this.visibilityControls).every(ctrl => ctrl.getValue());
+    allVisibleController.setValue(allVisible);
   }
 
   updateDisplays() {
