@@ -106,12 +106,12 @@ def save_packing_results(containers, output_file):
           "size": {
               "width": orient[0],
               "height": orient[2],
-              "depth": orient[1]
+              "depth": -orient[1]
           },
           "position": {
               "x": x,
               "y": y,
-              "z": -z
+              "z": z - container.depth
           },
           "container_id": container.id
       }
