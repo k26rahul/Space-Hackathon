@@ -6,8 +6,8 @@ def pack_items(containers, items):
   sorted_items = sorted(
       items,
       key=lambda i: (  # Negative to sort largest first
-          -(i.width * i.depth * i.height),
           i.priority,
+          -(i.width * i.depth * i.height),
           i.expiry,
           i.usage_limit)
   )
