@@ -1,13 +1,12 @@
 from datetime import datetime
 from itertools import permutations
-import json
 from dotenv import load_dotenv
-import os
+import json
 
 load_dotenv()
 
-INPUT_DATA_FILE = os.getenv('INPUT_DATA_FILE')
-OUTPUT_DATA_FILE = os.getenv('OUTPUT_DATA_FILE')
+INPUT_DATA_FILE = r'C:\k26rahul\Code\space-hackathon\3d-visualizer\data\8cube50.json'
+OUTPUT_DATA_FILE = r'C:\k26rahul\Code\space-hackathon\3d-visualizer\data\output.json'
 
 # Tolerance for floating-point comparisons.
 TOL = 1e-6
