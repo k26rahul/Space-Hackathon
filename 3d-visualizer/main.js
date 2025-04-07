@@ -34,8 +34,8 @@ const orthographicCamera = new THREE.OrthographicCamera(
   (viewSize * aspectRatio) / 2,
   viewSize / 2,
   -viewSize / 2,
-  -1000,
-  1000
+  -2000,
+  2000
 );
 
 const controls = new OrbitControls(orthographicCamera, renderer.domElement);

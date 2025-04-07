@@ -1,3 +1,6 @@
+from datetime import datetime, MAXYEAR
+
+
 class Item:
   def __init__(self, item_id, name, width, depth, height, mass_kg, priority, expiry, usage_limit, preferred_zone):
     self.id = item_id
@@ -7,7 +10,7 @@ class Item:
     self.height = height
     self.mass_kg = mass_kg
     self.priority = priority
-    self.expiry = expiry if expiry != "N/A" else float("inf")
+    self.expiry = datetime(MAXYEAR, 12, 31) if expiry == "N/A" else datetime.strptime(expiry, '%Y-%m-%d')
     self.usage_limit = usage_limit
     self.preferred_zone = preferred_zone
 

@@ -1,5 +1,6 @@
 import json
 import csv
+import time
 from .Container import Container
 from .Item import Item
 from .packing import pack_items
@@ -120,48 +121,83 @@ def save_packing_results(containers, output_file):
     json.dump(result, f, indent=2)
 
 
-def verify_packing_results(containers, unplaced):
+def verify_packing_results(containers, placed, unplaced):
+  total_container_volume = 0
+  total_placed_volume = 0
+  preferred_zone_count = 0
+  non_preferred_zone_count = 0
+  preferred_zone_priority_sum = 0
+  non_preferred_zone_priority_sum = 0
+
+  print("Size format: (width, height, depth)")
+  print("Position format: (x, y, z)")
+
   for container in containers:
-    print(f"\n🔍 Container {container.id} (Zone: {container.zone})")
-    print(f"Dimensions (W x H x D): {container.width:.2f} x {container.height:.2f} x {container.depth:.2f} cm")
-    print(f"Total Mass: {container.total_mass():.2f} kg")
-    print(f"Packed Items ({len(container.placements)}):")
-    if container.placements:
-      print(f"{'Item ID':<10}{'Name':<25}{'Dims (W x D x H)':<25}{'Pos (x, y, z)':<25}{'Priority':<10}{'Mass (kg)':<10}")
-      print("-" * 110)
-      for item, (x, y, z), orient in container.placements:
-        dims = f"{orient[0]:.2f} x {orient[1]:.2f} x {orient[2]:.2f}"
-        pos = f"({x:.2f}, {y:.2f}, {z:.2f})"
-        print(f"{item.id:<10}{item.name:<25}{dims:<25}{pos:<25}{item.priority:<10}{item.mass_kg:<10.2f}")
-    else:
-      print("No items packed.")
+    container_volume = container.width * container.height * container.depth
+    total_container_volume += container_volume
+    items_volume = 0
 
-    print("Free Spaces:")
-    if container.free_spaces:
-      for fs in container.free_spaces:
-        src = fs.source if fs.source else "N/A"
-        print(f"  {fs} - caused by {src}")
-    else:
-      print("  None")
+    print(f"\nContainer {container.id}")
+    print(f"Container position: ({container.width/2:.1f}, {0.0:.1f}, {0.0:.1f})")
 
-  if unplaced:
-    print("\n❌ Items that couldn't be placed:")
-    for item in unplaced:
-      print(f"  - {item.id} ({item.name}), Priority: {item.priority}")
+    print("\nPacked items:")
+    for item, (x, y, z), orient in container.placements:
+      width, depth, height = orient
+      if container.zone == item.preferred_zone:
+        preferred_zone_count += 1
+        preferred_zone_priority_sum += item.priority
+      else:
+        non_preferred_zone_count += 1
+        non_preferred_zone_priority_sum += item.priority
+      print(f"- {item.id}: position({x:.1f}, {y:.1f}, {z:.1f}), "
+            f"size({width:.1f}, {height:.1f}, {depth:.1f}), "
+            f"priority: {item.priority}")
+      item_volume = width * depth * height
+      items_volume += item_volume
 
-  print("\n✅ Packing verification complete!\n")
+    total_placed_volume += items_volume
+    free_space = container_volume - items_volume
+
+    print(f"\nVolume stats:")
+    print(f"Container: {container_volume:.1f} cm³")
+    print(f"Items: {items_volume:.1f} cm³ ({(items_volume/container_volume)*100:.1f}%)")
+    print(f"Free: {free_space:.1f} cm³ ({(free_space/container_volume)*100:.1f}%)")
+
+  print("\nTotal stats:")
+  print(f"Containers: {len(containers)}")
+  print(f"Items placed: {len(placed)}")
+  print(f"  - In preferred zone: {preferred_zone_count} (Priority sum: {preferred_zone_priority_sum}, "
+        f"avg: {preferred_zone_priority_sum/preferred_zone_count if preferred_zone_count else 0:.1f})")
+  print(f"  - In non-preferred zone: {non_preferred_zone_count} (Priority sum: {non_preferred_zone_priority_sum}, "
+        f"avg: {non_preferred_zone_priority_sum/non_preferred_zone_count if non_preferred_zone_count else 0:.1f})")
+  unplaced_priority_sum = sum(item.priority for item in unplaced)
+  print(f"Items unplaced: {len(unplaced)} (Priority sum: {unplaced_priority_sum}, "
+        f"avg: {unplaced_priority_sum/len(unplaced) if unplaced else 0:.1f})")
+  print(f"Container volume: {total_container_volume:.1f} cm³")
+  print(f"Placed volume: {total_placed_volume:.1f} cm³ ({(total_placed_volume/total_container_volume)*100:.1f}%)")
+  print(f"Free volume: {(total_container_volume-total_placed_volume):.1f} cm³ "
+        f"({((total_container_volume-total_placed_volume)/total_container_volume)*100:.1f}%)")
 
 
-# File paths
-ITEMS_CSV_FILE = 'data/items.csv'
-CONTAINERS_CSV_FILE = 'data/containers.csv'
-INPUT_JSON_FILE = r'C:\k26rahul\Code\space-hackathon\3d-visualizer\data\8cube50.json'
-OUTPUT_JSON_FILE = r'C:\k26rahul\Code\space-hackathon\3d-visualizer\data\output.json'
+def main():
+  start_time = time.time()
 
-# Choose your input method:
-# items, containers = parse_from_csvs(ITEMS_CSV_FILE, CONTAINERS_CSV_FILE)
-items, containers = parse_from_json(INPUT_JSON_FILE)
+  # File paths
+  ITEMS_CSV_FILE = r'C:\k26rahul\Code\space-hackathon\samples-eda\samples\input_items.csv'
+  CONTAINERS_CSV_FILE = r'C:\k26rahul\Code\space-hackathon\samples-eda\samples\containers.csv'
+  INPUT_JSON_FILE = r'C:\k26rahul\Code\space-hackathon\3d-visualizer\data\65stairs.json'
+  OUTPUT_JSON_FILE = r'C:\k26rahul\Code\space-hackathon\3d-visualizer\data\output.json'
 
-containers, placed, unplaced = pack_items(containers, items)
-verify_packing_results(containers, unplaced)
-save_packing_results(containers, OUTPUT_JSON_FILE)
+  # Choose your input method:
+  items, containers = parse_from_csvs(ITEMS_CSV_FILE, CONTAINERS_CSV_FILE)
+  # items, containers = parse_from_json(INPUT_JSON_FILE)
+
+  containers, placed, unplaced = pack_items(containers, items)
+  verify_packing_results(containers, placed, unplaced)
+  save_packing_results(containers, OUTPUT_JSON_FILE)
+
+  end_time = time.time()
+  print(f"\nTotal execution time: {end_time - start_time:.2f} seconds")
+
+
+main()

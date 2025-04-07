@@ -1,6 +1,7 @@
 import { copyToClipboard } from '../utils.js';
 
 export const DATASETS = [
+  'output',
   '2c-test',
   '100-10x40x20',
   '100-80x10x10',
