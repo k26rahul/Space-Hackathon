@@ -14,9 +14,10 @@ export class Container {
     this.items = {}; // {id: Item}
     this.mesh = this.createContainerMesh();
     this.updatePosition();
+  }
 
-    // Initialize GUI
-    this.gui = new ContainerGui(this, gui);
+  initGUI() {
+    this.gui = new ContainerGui(this);
   }
 
   get itemsArray() {

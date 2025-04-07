@@ -73,12 +73,14 @@ async function main() {
   let containers = initializeContainers(data);
 
   initializeGUI({
+    containers,
     onDatasetChange: async dataset => {
       Object.values(containers).forEach(c => {
         c.destroy();
       });
       const newData = await loadDataset(dataset);
       containers = initializeContainers(newData);
+      return containers;
     },
     onExport: () => exportDataset(containers),
   });

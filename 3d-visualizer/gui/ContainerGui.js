@@ -1,11 +1,12 @@
 import { GuiTextDisplay } from './GuiTextDisplay.js';
 import { generateRandomItemData } from '../data/data.js';
+import { gui } from './gui.js';
 
 const ITEM_SIZE_STEP = 5;
 const ITEM_POSITION_STEP = 5;
 
 export class ContainerGui {
-  constructor(container, gui) {
+  constructor(container) {
     this.container = container;
     this.visibilityControls = {};
     this.posControllers = new Map();

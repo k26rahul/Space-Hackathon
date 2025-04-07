@@ -8,7 +8,7 @@ export const settings = {
 
 export const gui = new GUI();
 
-export function initializeGUI({ onDatasetChange, onExport }) {
+export function initializeGUI({ containers, onDatasetChange, onExport }) {
   gui.add(settings, 'showLabelOnIntersection').name('Show Label on Intersection');
 
   // Dataset selection
@@ -17,11 +17,20 @@ export function initializeGUI({ onDatasetChange, onExport }) {
     .name('Dataset')
     .onChange(value => {
       setStoredDataset(value);
-      onDatasetChange(value);
+      containers = onDatasetChange(value);
+      setupContainerGUI(containers);
     });
 
   // Export button
   gui.add({ exportDataset: onExport }, 'exportDataset').name('Export Dataset');
 
-  return { gui };
+  function setupContainerGUI(containers) {
+    Object.values(containers).forEach(container => {
+      container.initGUI();
+    });
+  }
+
+  setupContainerGUI(containers);
+
+  return {};
 }
