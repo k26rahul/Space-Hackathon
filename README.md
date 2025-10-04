@@ -8,7 +8,7 @@ The system models cuboidal storage containers, uses algorithms to minimize retri
 
 A [3D visualizer](https://k26rahul.github.io/Space-Hackathon/3d-visualizer/) built with Three.js is included to show the packing algorithm’s efficiency, visualizing the positions of items inside a fixed-size container.
 
-Built with a RESTful API (on port 8000), Dockerized (Ubuntu 22.04 base), and includes a functional UI with time simulation for mission planning.
+Planned to include a RESTful API (on port 8000), Dockerized (Ubuntu 22.04 base), and a UI with time simulation for mission planning.
 
 > **Note:** This project is incomplete—we’ve only implemented the placement and retrieval algorithm and a 3D visualizer. The hackathon is over, and no further work is being done.
 
@@ -40,4 +40,6 @@ docker build -t space-hackathon .
 docker run -p 8000:8000 space-hackathon
 ```
 
-The application will be available at http://localhost:8000
+The application will be available at [http://localhost:8000](http://localhost:8000)
+
+> **Warning:** The backend is not implemented and most features may not work. Only the placement and retrieval algorithm and the 3D visualizer are partially functional, as the project was completed in a hurry.
