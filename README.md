@@ -1,5 +1,12 @@
 # Space Hackathon Project
 
+![National Space Hackathon](event_100_cover_National_Space_Hackathon.png)
+
+Official Event Pages:
+
+- [PAC IIT Delhi](https://pac.iitd.ac.in/pac-events/100)
+- [Unstop Hackathon Page](https://unstop.com/hackathons/national-space-hackathon-2025-iit-delhi-1422390)
+
 A prototype cargo management system for the International Space Station.
 
 It automates stowage operations—optimizing placement, retrieval, rearrangement, waste disposal, and cargo return—while logging all actions.
