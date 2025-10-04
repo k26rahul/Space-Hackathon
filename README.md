@@ -1,5 +1,17 @@
 # Space Hackathon Project
 
+A prototype cargo management system for the International Space Station.
+
+It automates stowage operations—optimizing placement, retrieval, rearrangement, waste disposal, and cargo return—while logging all actions.
+
+The system models cuboidal storage containers, uses algorithms to minimize retrieval steps, and handles priorities, expiry dates, and space constraints.
+
+A [3D visualizer](https://k26rahul.github.io/Space-Hackathon/3d-visualizer/) built with Three.js is included to show the packing algorithm’s efficiency, visualizing the positions of items inside a fixed-size container.
+
+Built with a RESTful API (on port 8000), Dockerized (Ubuntu 22.04 base), and includes a functional UI with time simulation for mission planning.
+
+> **Note:** This project is incomplete—we’ve only implemented the placement and retrieval algorithm and a 3D visualizer. The hackathon is over, and no further work is being done.
+
 ## Setup & Running
 
 ### Prerequisites
